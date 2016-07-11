@@ -1,21 +1,21 @@
-class GCodeObject:
+class GCodeBase:
 	"Basic G-code object"
 	integar = None
 	def __init__(self, i):
 		integar = i
 
-class GCodeObjectG(GCodeObject):
+class GCodeG(GCodeBase):
 	"Address for preparatory commands"
 	pass
 
-class GCodeObjectX(GCodeObject):
+class GCodeX(GCodeBase):
 	"Absolute or incremental position of X axis."
 	pass
 
-class GCodeObjectY(GCodeObject):
+class GCodeY(GCodeBase):
 	"Absolute or incremental position of Y axis."
 	pass
 
-class GCodeObjectZ(GCodeObject):
+class GCodeZ(GCodeBase):
 	"Absolute or incremental position of Z axis."
 	pass
