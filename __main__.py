@@ -15,6 +15,7 @@ if parser_arg.input_file != None:
 # Process
 main_loop = True
 while main_loop:
+	print(GCodeObject.GCodeX(100))
 	main_loop = False
 
 # Close the process
