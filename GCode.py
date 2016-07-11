@@ -1,5 +1,7 @@
+'''It is a main logic for G-code.'''
+
 import argparse
-import GCode_object
+import GCodeObject
 
 parser_obj = argparse.ArgumentParser()
 parser_obj.add_argument('input_file', nargs = '?')
