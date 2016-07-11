@@ -1,4 +1,4 @@
-'''It is a main logic for G-code.'''
+'''A main logic for Raspberry Pi with GPIO(gpiozero).'''
 
 import argparse
 import GCodeObject
@@ -13,4 +13,10 @@ if parser_arg.input_file != None:
 	main_file = open(parser_arg.input_file, 'r')
 
 # Process
-main_loop_enabled = True
+main_loop = True
+while main_loop:
+	main_loop = False
+
+# Close the process
+if parser_arg.input_file != None:
+	main_file.close()
