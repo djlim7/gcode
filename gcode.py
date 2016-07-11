@@ -1,5 +1,5 @@
 import argparse
-import gcode_object
+import GCode_object
 
 parser_obj = argparse.ArgumentParser()
 parser_obj.add_argument('input_file', nargs = '?')
