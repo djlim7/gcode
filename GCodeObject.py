@@ -4,7 +4,11 @@ class GCodeBase:
 	def __init__(self, integar):
 		self.integar = integar
 	def __str__(self):
-		return '{}{}'.format(str(type(self)), self.integar)
+		# Warning - It is hard-coded
+		thestring = str(type(self))
+		thestring = thestring.split('.')[1]
+		thestring = thestring[:-2]
+		return '{}{}'.format(thestring, self.integar)
 
 class GCodeG(GCodeBase):
 	"Address for preparatory commands"
