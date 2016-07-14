@@ -1,6 +1,7 @@
 '''A main logic for Raspberry Pi with GPIO(gpiozero).'''
 
 import argparse
+import os
 import GCodeObject
 
 # Parse the arguments
@@ -15,8 +16,15 @@ if parser_arg.input_file != None:
 # Process
 main_loop = True
 while main_loop:
-	print(GCodeObject.GCodeX(100))
-	main_loop = False
+	if parser_arg.input_file != None:
+		character = main_file.read(1)
+		
+		if main_file.tell() == os.fstat(main_file.fileno()).st_size:
+			main_loop = False
+	else:
+		input('>>> ')
+
+	print(character, end = '')
 
 # Close the process
 if parser_arg.input_file != None:
