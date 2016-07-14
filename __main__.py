@@ -3,6 +3,7 @@
 import argparse
 import os
 import GCodeObject
+import GCodePreprocess
 
 # Parse the arguments
 parser_obj = argparse.ArgumentParser()
@@ -15,15 +16,21 @@ if parser_arg.input_file != None:
 
 # Process
 main_loop = True
+main_coroutine = GCodePreprocess.GCodePreprocessor()
+character_lastletter = False
 while main_loop:
+	# Read the file
 	if parser_arg.input_file != None:
 		character = main_file.read(1)
-		
+		# Process the last letter
 		if main_file.tell() == os.fstat(main_file.fileno()).st_size:
+			character_lastletter = True
 			main_loop = False
-	else:
-		input('>>> ')
 
+	# Preprocess
+	main_coroutine.send(character)
+
+	# Postprocess - exclusively for Raspberry Pi
 	print(character, end = '')
 
 # Close the process
