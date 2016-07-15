@@ -9,6 +9,9 @@ def GCodeParser():
 	process_result = None
 
 	while True:
+		if process_status == 'r':
+			process_result = process_list[:]
+
 		input_char = (yield process_result).upper()
 
 		if process_status == 'r':
@@ -34,6 +37,3 @@ def GCodeParser():
 				process_status = 'r'
 		else:
 			raise GCodeObject.GCodeSyntaxError()
-
-		if process_status == 'r':
-			process_result = process_list[:]
