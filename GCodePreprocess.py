@@ -12,7 +12,7 @@ def custom_coroutine_wrapper(func):
 @custom_coroutine_wrapper
 def GCodePreprocessor():
 	input_list = list()
-	process_status = 'r' # b -> p -> i
+	process_status = 'b' # b -> p -> i
 	process_result = None
 	while True:
 		input_char = (yield process_result)
