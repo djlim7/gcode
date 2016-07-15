@@ -17,15 +17,18 @@ if parser_arg.input_file != None:
 # Process
 main_loop = True
 main_coroutine = GCodePreprocess.GCodeParser()
-character_lastletter = False
+process_lastmoment = False
 while main_loop:
 	# Read the file
-	if parser_arg.input_file != None:
-		character = main_file.read(1)
-		# Process the last letter
-		if main_file.tell() == os.fstat(main_file.fileno()).st_size:
-			character_lastletter = True
+	character = main_file.read(1)
+	# Process the last letter
+	if main_file.tell() == os.fstat(main_file.fileno()).st_size:
+		if process_lastmoment:
+			character = ' '
 			main_loop = False
+		else:
+			# Process the last moment next time
+			process_lastmoment = True
 
 	# Preprocess
 	imsi_result = main_coroutine.send(character)
