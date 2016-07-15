@@ -1,4 +1,5 @@
 import functools
+import string
 import GCodeObject
 
 def custom_coroutine_wrapper(func):
@@ -16,8 +17,9 @@ def GCodeParser():
 
 	while True:
 		input_char = (yield process_result)
+		input_char = input_char.upper()
 
-		if input_char.isalpha():
+		if input_char in string.ascii_letters:
 			if process_status == 'p':
 				process_result[0] = input_char
 				process_status = 'i'
@@ -25,3 +27,7 @@ def GCodeParser():
 			if process_status == 'i':
 				process_result[1] = process_result[1] * 10 + int(input_char)
 				pass
+		elif input_char.isspace():
+			pass
+		else:
+			raise GCodeObject.GCodeSyntaxError()

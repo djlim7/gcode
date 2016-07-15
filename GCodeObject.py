@@ -18,3 +18,9 @@ class GCodeX(GCodeBase):
 class GCodeY(GCodeBase):
 	"Absolute or incremental position of Y axis."
 	prefix = 'Y'
+
+class GCodeException(Exception):
+	pass
+
+class GCodeSyntaxError(GCodeException):
+	pass
