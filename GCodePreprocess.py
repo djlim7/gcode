@@ -10,21 +10,18 @@ def custom_coroutine_wrapper(func):
 	return init
 
 @custom_coroutine_wrapper
-def GCodePreprocessor():
-	input_list = list()
-	process_status = 'b' # b -> p -> i
-	process_result = None
+def GCodeParser():
+	process_status = 'p' # 'p'refix -> 'i'ntegar -> 'r'esult
+	process_result = ['', 0]
+
 	while True:
 		input_char = (yield process_result)
+
 		if input_char.isalpha():
-			if process_status == 'b':
-				process_status = 'p'
-				input_list.append(input_char)
-		if input_char.isdigit():
 			if process_status == 'p':
+				process_result[0] = input_char
 				process_status = 'i'
-				input_list.append(input_char)
-		if input_char.isspace():
+		elif input_char.isdigit():
 			if process_status == 'i':
-				process_status = 'b'
-				print(input_list)
+				process_result[1] = process_result[1] * 10 + int(input_char)
+				pass

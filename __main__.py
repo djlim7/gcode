@@ -16,7 +16,7 @@ if parser_arg.input_file != None:
 
 # Process
 main_loop = True
-main_coroutine = GCodePreprocess.GCodePreprocessor()
+main_coroutine = GCodePreprocess.GCodeParser()
 character_lastletter = False
 while main_loop:
 	# Read the file
@@ -28,10 +28,11 @@ while main_loop:
 			main_loop = False
 
 	# Preprocess
-	main_coroutine.send(character)
+	imsi_result = main_coroutine.send(character)
 
 	# Postprocess - exclusively for Raspberry Pi
 	print(character, end = '')
+	print(imsi_result)
 
 # Close the process
 if parser_arg.input_file != None:
