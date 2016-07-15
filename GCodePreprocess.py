@@ -1,16 +1,7 @@
-import functools
 import string
 import GCodeObject
 
-def custom_coroutine_wrapper(func):
-	@functools.wraps(func)
-	def init(*args, **kwargs):
-		cr_obj = func(*args, **kwargs)
-		next(cr_obj)
-		return cr_obj
-	return init
-
-@custom_coroutine_wrapper
+@GCodeObject.CustomCoroutineWrapper
 def GCodeParser():
 	process_status = 'p' # 'p'refix -> 'i'ntegar -> 'r'esult
 	process_list_initial = ['', 0]

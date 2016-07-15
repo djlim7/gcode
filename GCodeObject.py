@@ -1,3 +1,13 @@
+import functools
+
+def CustomCoroutineWrapper(func):
+	@functools.wraps(func)
+	def init(*args, **kwargs):
+		cr_obj = func(*args, **kwargs)
+		next(cr_obj)
+		return cr_obj
+	return init
+
 class GCodeBase:
 	"Basic G-code object"
 	prefix = None
