@@ -1,118 +1,50 @@
+import os
 import string
 import GCodeObject
 
-@GCodeObject.CustomCoroutineWrapper
-def GCodeParser():
-	#
-	#                   --- < ---
-	#                   |        |
-	# process_head --> 'p'refix  |
-	#                   |        |
-	#                  'i'ntegar |
-	#                   |        |
-	# process_tail --> 'r'esult  |
-	#                   |        |
-	#                   --- > ---
-	#
-	process_head = 'p'
-	process_tail = 'r'
-	process_list_initial = ['', 0]
-	process_list = process_list_initial[:]
-	process_result = None
+def GCodeSyntaxParser(file_name):
+	with open(file_name, 'r') as file_stream:
+		main_loop = True
+		process_lastmoment = False
+		result_list = []
+		last_processed_type = 'str'
+		while main_loop:
+			character = file_stream.read(1)
 
-	while True:
-		#
-		#    process_head: |    'p'    |    'i'    |    'r'
-		# process_tail:
-		#    ---
-		#    'p'
-		#    ---
-		#    'i'
-		#    ---
-		#    'r'
-		#
-		#
-		#
-		#
+			if file_stream.tell() == os.fstat(file_stream.fileno()).st_size:
+				if process_lastmoment:
+					character = ' '
+					main_loop = False
+				else:
+					process_lastmoment = True
 
-		# Pre-process the 'r' head
-		if process_head == 'r':
-			process_result = process_list[:]
+			if character in string.ascii_letters:
+				if last_processed_type == 'str':
+					pass
+				elif last_processed_type == 'int':
+					pass
+				elif last_processed_type == 'space':
+					pass
 
-		input_char = (yield process_result).upper()
+				last_processed_type = 'str'
+			elif character.isdigit():
+				if last_processed_type == 'str':
+					pass
+				elif last_processed_type == 'int':
+					pass
+				elif last_processed_type == 'space':
+					pass
 
-		# Post-process the 'r' head
-		if process_head == 'r':
-			process_list = process_list_initial[:]
-			process_result = None
-			process_head = 'p'
-			process_tail = 'r'
+				last_processed_type = 'int'
+			elif character.isspace():
+				if last_processed_type == 'str':
+					pass
+				elif last_processed_type == 'int':
+					pass
+				elif last_processed_type == 'space':
+					pass
 
-		if input_char in string.ascii_letters:
-			if process_head == 'p':
-				if process_tail == 'p':
-					pass
-				if process_tail == 'i':
-					pass
-				if process_tail == 'r':
-					pass
-			elif process_head == 'i':
-				if process_tail == 'p':
-					pass
-				if process_tail == 'i':
-					pass
-				if process_tail == 'r':
-					pass
-			elif process_head == 'r':
-				if process_tail == 'p':
-					pass
-				if process_tail == 'i':
-					pass
-				if process_tail == 'r':
-					pass
-		elif input_char.isdigit():
-			if process_head == 'p':
-				if process_tail == 'p':
-					pass
-				if process_tail == 'i':
-					pass
-				if process_tail == 'r':
-					pass
-			elif process_head == 'i':
-				if process_tail == 'p':
-					pass
-				if process_tail == 'i':
-					pass
-				if process_tail == 'r':
-					pass
-			elif process_head == 'r':
-				if process_tail == 'p':
-					pass
-				if process_tail == 'i':
-					pass
-				if process_tail == 'r':
-					pass
-		elif input_char.isspace():
-			if process_head == 'p':
-				if process_tail == 'p':
-					pass
-				if process_tail == 'i':
-					pass
-				if process_tail == 'r':
-					pass
-			elif process_head == 'i':
-				if process_tail == 'p':
-					pass
-				if process_tail == 'i':
-					pass
-				if process_tail == 'r':
-					pass
-			elif process_head == 'r':
-				if process_tail == 'p':
-					pass
-				if process_tail == 'i':
-					pass
-				if process_tail == 'r':
-					pass
-		else:
-			raise GCodeObject.GCodeSyntaxError()
+				last_processed_type = 'int'
+			else:
+				raise GCodeObject.GCodeSyntaxError \
+					('The file contains unsupported character.')

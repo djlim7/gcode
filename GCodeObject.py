@@ -11,7 +11,7 @@ def CustomCoroutineWrapper(func):
 class GCodeElementBase:
 	"G-code element"
 	element = None
-	def __init__(self, element):
+	def __init__(self, element = None):
 		self.element = element
 	def __str__(self):
 		return self.element
