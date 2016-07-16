@@ -22,21 +22,38 @@ class GCodePrefix(GCodeElementBase):
 	def __repr__(self):
 		return 'GCodePrefix: {}'.format(self.element)
 
-class GCodeIntegar(GCodeElementBase):
-	"G-code integar"
+class GCodeFloat(GCodeElementBase):
+	"G-code float"
 	def __repr__(self):
-		return 'GCodeIntegar: {}'.format(self.element)
+		return 'GCodeFloat: {}'.format(self.element)
+
+class GCodeElementHandler:
+	"Handler of G-code elements"
+	memebr_tuple = None
+	def __init__(self, builtin_element_tuple):
+		temporary_list = list()
+		for x in builtin_element_tuple:
+			if type(x) == type(str()):
+				temporary_list.append(GCodePrefix(x))
+			elif type(x) == type(float()):
+				temporary_list.append(GCodeFloat(x))
+			elif type(x) == type(GCodePrefix()) or type(GCodeFloat()):
+				temporary_list.append(x)
+		self.memebr_tuple = tuple(temporary_list)
+	def __repr__(self):
+		return 'GCodeElementHandler: {}'.format(self.memebr_tuple)
+
 
 class GCodeBase:
 	"Basic G-code object"
 	prefix = GCodePrefix('')
-	integar = GCodeIntegar(0)
-	def __init__(self, integar):
-		self.integar = integar
+	number = GCodeFloat(0)
+	def __init__(self, number):
+		self.number = number
 	def __str__(self):
-		return '{}{}'.format(str(self.prefix), str(self.integar))
+		return '{}{}'.format(str(self.prefix), str(self.number))
 	def __repr__(self):
-		return 'GCode: {}{}'.format(str(self.prefix), str(self.integar))
+		return 'GCode: {}{}'.format(str(self.prefix), str(self.number))
 
 class GCodeG(GCodeBase):
 	"Address for preparatory commands"

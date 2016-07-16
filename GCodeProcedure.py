@@ -2,7 +2,8 @@ import os
 import string
 import GCodeObject
 
-def GCodeSyntaxParser(file_name):
+def ParseSyntax(file_name):
+	"Parse the syntax, form text file to Python tuple."
 	with open(file_name, 'r') as file_stream:
 		main_loop = True
 		process_lastmoment = False
@@ -38,3 +39,8 @@ def GCodeSyntaxParser(file_name):
 					('The file contains unsupported character.')
 
 	return tuple(result_list)
+
+def ValidateGrammer(handle_tuple):
+	"""Validate grammer.
+	The handle_tuple should contain GCodeObject contents."""
+	pass
