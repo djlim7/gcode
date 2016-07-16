@@ -7,9 +7,9 @@ def GCodeSyntaxParser(file_name):
 		main_loop = True
 		process_lastmoment = False
 		result_list = []
-		last_processed_type = 'str'
+		last_processed_type = 'space'
 		while main_loop:
-			character = file_stream.read(1)
+			character = (file_stream.read(1)).upper()
 
 			if file_stream.tell() == os.fstat(file_stream.fileno()).st_size:
 				if process_lastmoment:
@@ -18,33 +18,23 @@ def GCodeSyntaxParser(file_name):
 				else:
 					process_lastmoment = True
 
-			if character in string.ascii_letters:
-				if last_processed_type == 'str':
-					pass
-				elif last_processed_type == 'int':
-					pass
-				elif last_processed_type == 'space':
-					pass
+			if character in string.ascii_letters: # 'str'
+				result_list.append(character)
 
 				last_processed_type = 'str'
-			elif character.isdigit():
+			elif character.isdigit(): # 'int'
 				if last_processed_type == 'str':
-					pass
+					result_list.append(int(character))
 				elif last_processed_type == 'int':
-					pass
+					result_list[-1] = int(result_list[-1]) * 10 + int(character)
 				elif last_processed_type == 'space':
-					pass
+					result_list.append(int(character))
 
 				last_processed_type = 'int'
-			elif character.isspace():
-				if last_processed_type == 'str':
-					pass
-				elif last_processed_type == 'int':
-					pass
-				elif last_processed_type == 'space':
-					pass
-
-				last_processed_type = 'int'
+			elif character.isspace(): # 'space'
+				last_processed_type = 'space'
 			else:
 				raise GCodeObject.GCodeSyntaxError \
 					('The file contains unsupported character.')
+
+	return tuple(result_list)

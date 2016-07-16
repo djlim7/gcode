@@ -1,6 +1,7 @@
 import functools
 
 def CustomCoroutineWrapper(func):
+	"Initialzie automatically."
 	@functools.wraps(func)
 	def init(*args, **kwargs):
 		cr_obj = func(*args, **kwargs)
@@ -18,11 +19,13 @@ class GCodeElementBase:
 
 class GCodePrefix(GCodeElementBase):
 	"G-code prefix"
-	pass
+	def __repr__(self):
+		return 'GCodePrefix: {}'.format(self.element)
 
 class GCodeIntegar(GCodeElementBase):
 	"G-code integar"
-	pass
+	def __repr__(self):
+		return 'GCodeIntegar: {}'.format(self.element)
 
 class GCodeBase:
 	"Basic G-code object"
@@ -32,21 +35,25 @@ class GCodeBase:
 		self.integar = integar
 	def __str__(self):
 		return '{}{}'.format(str(self.prefix), str(self.integar))
+	def __repr__(self):
+		return 'GCode: {}{}'.format(str(self.prefix), str(self.integar))
 
 class GCodeG(GCodeBase):
 	"Address for preparatory commands"
 	prefix = GCodePrefix('G')
 
 class GCodeX(GCodeBase):
-	"Absolute or incremental position of X axis."
+	"Absolute or incremental position of X axis"
 	prefix = GCodePrefix('X')
 
 class GCodeY(GCodeBase):
-	"Absolute or incremental position of Y axis."
+	"Absolute or incremental position of Y axis"
 	prefix = GCodePrefix('Y')
 
 class GCodeException(Exception):
+	"Basic exception class for G-code handling"
 	pass
 
 class GCodeSyntaxError(GCodeException):
+	"G-code Syntax Error"
 	pass
