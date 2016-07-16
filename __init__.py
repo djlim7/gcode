@@ -1,6 +1,6 @@
 "Simplified G-code library"
 
-__all__ = ['GCodeObject', 'GCodePreprocess']
+__all__ = ['GCodeObject', 'GCodeProcedure']
 
 from . import GCodeObject
-from . import GCodePreprocess
+from . import GCodeProcedure
