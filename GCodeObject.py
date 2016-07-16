@@ -20,12 +20,12 @@ class GCodeElementBase:
 class GCodePrefix(GCodeElementBase):
 	"G-code prefix"
 	def __repr__(self):
-		return 'GCodePrefix: {}'.format(self.element)
+		return 'GCodePrefix: {}'.format(repr(self.element))
 
 class GCodeFloat(GCodeElementBase):
 	"G-code float"
 	def __repr__(self):
-		return 'GCodeFloat: {}'.format(self.element)
+		return 'GCodeFloat: {}'.format(repr(self.element))
 
 class GCodeElementHandler:
 	"Handler of G-code elements"
@@ -53,7 +53,7 @@ class GCodeBase:
 	def __str__(self):
 		return '{}{}'.format(str(self.prefix), str(self.number))
 	def __repr__(self):
-		return 'GCode: {}{}'.format(str(self.prefix), str(self.number))
+		return 'GCode: {}{}'.format(repr(self.prefix), repr(self.number))
 
 class GCodeG(GCodeBase):
 	"Address for preparatory commands"
