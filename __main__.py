@@ -3,7 +3,7 @@
 import argparse
 import os
 import GCodeObject
-import GCodePreprocess
+import GCodeProcedure
 
 # Parse the arguments
 parser_obj = argparse.ArgumentParser()
@@ -16,7 +16,7 @@ if parser_arg.input_file != None:
 
 # Process
 main_loop = True
-main_coroutine = GCodePreprocess.GCodeParser()
+main_coroutine = GCodeProcedure.GCodeParser()
 process_lastmoment = False
 while main_loop:
 	# Read the file
