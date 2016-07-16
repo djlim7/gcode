@@ -7,7 +7,7 @@ def GCodeSyntaxParser(file_name):
 		main_loop = True
 		process_lastmoment = False
 		result_list = []
-		last_processed_type = 'space'
+		last_processed_type = 'space' # 'str', 'float', 'space', 'minus', 'dot'
 		while main_loop:
 			character = (file_stream.read(1)).upper()
 
@@ -22,15 +22,15 @@ def GCodeSyntaxParser(file_name):
 				result_list.append(character)
 
 				last_processed_type = 'str'
-			elif character.isdigit(): # 'int'
+			elif character.isdigit(): # 'float'
 				if last_processed_type == 'str':
-					result_list.append(int(character))
-				elif last_processed_type == 'int':
-					result_list[-1] = int(result_list[-1]) * 10 + int(character)
+					result_list.append(float(character))
+				elif last_processed_type == 'float':
+					result_list[-1] = float(result_list[-1]) * 10 + float(character)
 				elif last_processed_type == 'space':
-					result_list.append(int(character))
+					result_list.append(float(character))
 
-				last_processed_type = 'int'
+				last_processed_type = 'float'
 			elif character.isspace(): # 'space'
 				last_processed_type = 'space'
 			else:
