@@ -42,7 +42,19 @@ class GCodeElementHandler:
 		self.memebr_tuple = tuple(temporary_list)
 	def __repr__(self):
 		return 'GCodeElementHandler: {}'.format(self.memebr_tuple)
+	def ValidateGrammer(self):
+		last_processed_type = type(GCodeFloat())
+		for x in self.memebr_tuple:
+			if type(x) == last_processed_type:
+				raise GCodeSyntaxError('Check whether prefix and float comes alternately.')
+			else:
+				last_processed_type = type(x)
 
+		# Check whether last_processed_type is GCodePrefix
+		if last_processed_type == type(GCodePrefix()):
+			raise GCodeSyntaxError('G-code ends with prefix.')
+
+		return True
 
 class GCodeBase:
 	"Basic G-code object"

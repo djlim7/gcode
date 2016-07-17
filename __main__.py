@@ -12,4 +12,6 @@ parser_arg = parser_obj.parse_args()
 # Process
 with open(parser_arg.input_file, 'r') as file_stream:
 	s = file_stream.read()
-	print(GCodeObject.GCodeElementHandler(GCodeProcedure.ParseSyntax(s)))
+
+element_tuple = GCodeObject.GCodeElementHandler(GCodeProcedure.ParseSyntax(s))
+element_tuple.ValidateGrammer()

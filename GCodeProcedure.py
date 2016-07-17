@@ -37,8 +37,3 @@ def ParseSyntax(process_string):
 		idx += 1
 
 	return tuple(result_list)
-
-def ValidateGrammer(handle_tuple):
-	"""Validate grammer.
-	The handle_tuple should contain GCodeObject contents."""
-	pass
