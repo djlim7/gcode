@@ -10,4 +10,6 @@ parser_obj.add_argument('input_file', type = str ,nargs = '?')
 parser_arg = parser_obj.parse_args()
 
 # Process
-print(GCodeObject.GCodeElementHandler(GCodeProcedure.ParseSyntax(parser_arg.input_file)))
+with open(parser_arg.input_file, 'r') as file_stream:
+	s = file_stream.read()
+	print(GCodeObject.GCodeElementHandler(GCodeProcedure.ParseSyntax(s)))
