@@ -58,14 +58,15 @@ class GCodeElementHandler:
 	def BindToGCode(self):
 		self.ValidateGrammer()
 		result_list = list()
-		type_name_buf = None
+		buf = None
 		odd = True
 		for x in self.memeber_tuple:
 			if odd == True:
-				type_name_buf = x.element
+				buf = x.element
 				odd = False
 			else:
-				pass
+				result_list.append(GCode(buf, x))
+				odd = True
 
 class GCode:
 	"G-code object"
