@@ -29,7 +29,7 @@ class GCodeFloat(GCodeElementBase):
 
 class GCodeElementHandler:
 	"Handler of G-code elements"
-	memebr_tuple = None
+	memeber_tuple = None
 	def __init__(self, builtin_element_tuple):
 		temporary_list = list()
 		for x in builtin_element_tuple:
@@ -39,12 +39,12 @@ class GCodeElementHandler:
 				temporary_list.append(GCodeFloat(x))
 			elif type(x) == type(GCodePrefix()) or type(GCodeFloat()):
 				temporary_list.append(x)
-		self.memebr_tuple = tuple(temporary_list)
+		self.memeber_tuple = tuple(temporary_list)
 	def __repr__(self):
-		return 'GCodeElementHandler: {}'.format(self.memebr_tuple)
+		return 'GCodeElementHandler: {}'.format(self.memeber_tuple)
 	def ValidateGrammer(self):
 		last_processed_type = type(GCodeFloat())
-		for x in self.memebr_tuple:
+		for x in self.memeber_tuple:
 			if type(x) == last_processed_type:
 				raise GCodeSyntaxError('Check whether prefix and float comes alternately.')
 			else:
@@ -55,6 +55,17 @@ class GCodeElementHandler:
 			raise GCodeSyntaxError('G-code ends with prefix.')
 
 		return True
+	def BindToGCode(self):
+		self.ValidateGrammer()
+		result_list = list()
+		type_name_buf = None
+		odd = True
+		for x in self.memeber_tuple:
+			if odd == True:
+				type_name_buf = x.element
+				odd = False
+			else:
+				pass
 
 class GCodeBase:
 	"Basic G-code object"
