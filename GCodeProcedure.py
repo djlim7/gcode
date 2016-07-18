@@ -1,6 +1,6 @@
 import os
 import string
-import GCodeObject
+from . import GCodeObject
 
 def ParseSyntax(process_string):
 	"Parse the syntax, form text file to Python tuple."
