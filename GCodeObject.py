@@ -67,28 +67,17 @@ class GCodeElementHandler:
 			else:
 				pass
 
-class GCodeBase:
-	"Basic G-code object"
+class GCode:
+	"G-code object"
 	prefix = GCodePrefix('')
 	number = GCodeFloat(0)
-	def __init__(self, number):
+	def __init__(self, prefix, number):
+		self.prefix = prefix
 		self.number = number
 	def __str__(self):
 		return '{}{}'.format(str(self.prefix), str(self.number))
 	def __repr__(self):
 		return 'GCode: {}{}'.format(repr(self.prefix), repr(self.number))
-
-class GCodeG(GCodeBase):
-	"Address for preparatory commands"
-	prefix = GCodePrefix('G')
-
-class GCodeX(GCodeBase):
-	"Absolute or incremental position of X axis"
-	prefix = GCodePrefix('X')
-
-class GCodeY(GCodeBase):
-	"Absolute or incremental position of Y axis"
-	prefix = GCodePrefix('Y')
 
 class GCodeException(Exception):
 	"Basic exception class for G-code handling"
