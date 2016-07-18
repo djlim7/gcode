@@ -67,6 +67,7 @@ class GCodeElementHandler:
 			else:
 				result_list.append(GCode(buf, x))
 				odd = True
+		return tuple(result_list)
 
 class GCode:
 	"G-code object"
