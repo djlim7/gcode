@@ -62,7 +62,7 @@ class GCodeElementHandler:
 		odd = True
 		for x in self.memeber_tuple:
 			if odd == True:
-				buf = x.element
+				buf = x
 				odd = False
 			else:
 				result_list.append(GCode(buf, x))
