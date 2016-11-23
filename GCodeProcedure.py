@@ -5,18 +5,23 @@ from . import GCodeObject
 
 class GCodeParser:
     """Parse the GCode into tuple with elements."""
-    def parse_syntax(self, process_string):
+    process_string = None
+
+    def __init__(self, process_string):
+        self.process_string = process_string
+
+    def parse_syntax(self):
         """Parse the syntax, form text file to Python tuple."""
         result_list = []
         main_loop = True
         idx = 0
         last_processed_type = 'space' # 'str', 'float', 'space', 'minus', 'dot'
         while main_loop:
-            if idx == len(process_string):
+            if idx == len(self.process_string):
                 character = ' '
                 main_loop = False
             else:
-                character = process_string[idx]
+                character = self.process_string[idx]
 
             if character in string.ascii_letters: # 'str'
                 result_list.append(character)
