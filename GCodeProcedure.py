@@ -23,20 +23,21 @@ class GCodeParser:
             else:
                 character = self.process_string[idx]
 
-            if character in string.ascii_letters: # 'str'
-                result_list.append(character)
-
+            # 'str'
+            if character in string.ascii_letters:
+                result_list.append(character.upper())
                 last_processed_type = 'str'
-            elif character.isdigit(): # 'float'
+            # 'float'
+            elif character.isdigit():
                 if last_processed_type == 'str':
                     result_list.append(float(character))
                 elif last_processed_type == 'float':
                     result_list[-1] = float(result_list[-1]) * 10 + float(character)
                 elif last_processed_type == 'space':
                     result_list.append(float(character))
-
                 last_processed_type = 'float'
-            elif character.isspace(): # 'space'
+            # 'space'
+            elif character.isspace():
                 last_processed_type = 'space'
             else:
                 raise GCodeObject.GCodeSyntaxError \
