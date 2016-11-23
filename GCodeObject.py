@@ -23,12 +23,12 @@ class GCodeElementBase:
 class GCodePrefix(GCodeElementBase):
     "G-code prefix"
     def __repr__(self):
-        return 'GCodePrefix: {}'.format(repr(self.element))
+        return '(GCodePrefix: {})'.format(repr(self.element))
 
 class GCodeFloat(GCodeElementBase):
     "G-code float"
     def __repr__(self):
-        return 'GCodeFloat: {}'.format(repr(self.element))
+        return '(GCodeFloat: {})'.format(repr(self.element))
 
 class GCodeElementHandler:
     "Handler of G-code elements"
@@ -44,7 +44,7 @@ class GCodeElementHandler:
                 temporary_list.append(indic)
         self.memeber_tuple = tuple(temporary_list)
     def __repr__(self):
-        return 'GCodeElementHandler: {}'.format(self.memeber_tuple)
+        return '(GCodeElementHandler: {})'.format(self.memeber_tuple)
     def validate_grammer(self):
         """Validate Grammer"""
         last_processed_type = type(GCodeFloat())
@@ -84,7 +84,7 @@ class GCode:
     def __str__(self):
         return '{}{}'.format(str(self.prefix), str(self.number))
     def __repr__(self):
-        return 'GCode: {}{}'.format(repr(self.prefix), repr(self.number))
+        return '(GCode: {}, {})'.format(repr(self.prefix), repr(self.number))
 
 class GCodeException(Exception):
     "Basic exception class for G-code handling"
