@@ -13,12 +13,57 @@ def custom_coroutine_wrapper(func):
     return init
 
 class GCodeElementBase:
-    "G-code element"
+    "G-code element base"
     element = None
     def __init__(self, element=None):
         self.element = element
     def __str__(self):
         return self.element
+
+class GCodeParserElementBase(GCodeElementBase):
+    """G-code parser element base"""
+    def __repr__(self):
+        return '(GCodeParserElementBase: {})'.format(repr(self.element))
+
+class GCodeParserChar(GCodeParserElementBase):
+    """G-code parser char element"""
+    def __repr__(self):
+        return '(GCodeParserChar: {})'.format(repr(self.element))
+
+class GCodeParserInt(GCodeParserElementBase):
+    """G-code parser int element"""
+    def __repr__(self):
+        return '(GCodeParserInt: {})'.format(repr(self.element))
+
+class GCodeParserSpace(GCodeParserElementBase):
+    """G-code parser space element"""
+    def __repr__(self):
+        return '(GCodeParserSpace: {})'.format(repr(self.element))
+
+class GCodeParserMinus(GCodeParserElementBase):
+    """G-code parser minus element"""
+    def __repr__(self):
+        return '(GCodeParserMinus: {})'.format(repr(self.element))
+
+class GCodeParserBracketBase(GCodeParserElementBase):
+    """G-code parser bracket base"""
+    def __repr__(self):
+        return '(GCodeParserBracketBase: {})'.format(repr(self.element))
+
+class GCodeParserBracketLeft(GCodeParserBracketBase):
+    """G-code parser left bracket element"""
+    def __repr__(self):
+        return '(GCodeParserBracketLeft: {})'.format(repr(self.element))
+
+class GCodeParserBracketRight(GCodeParserBracketBase):
+    """G-code parser right bracket element"""
+    def __repr__(self):
+        return '(GCodeParserBracketRight: {})'.format(repr(self.element))
+
+class GCodeParserSpecialCharacter(GCodeParserElementBase):
+    """G-code parser special element"""
+    def __repr__(self):
+        return '(GCodeParserSpecialCharacter: {})'.format(repr(self.element))
 
 class GCodePrefixBase(GCodeElementBase):
     """G-code prefix"""
