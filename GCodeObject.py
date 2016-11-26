@@ -20,15 +20,40 @@ class GCodeElementBase:
     def __str__(self):
         return self.element
 
-class GCodePrefix(GCodeElementBase):
-    "G-code prefix"
+class GCodePrefixBase(GCodeElementBase):
+    """G-code prefix"""
     def __repr__(self):
         return '(GCodePrefix: {})'.format(repr(self.element))
 
-class GCodeFloat(GCodeElementBase):
+class GCodePrefixChar(GCodePrefixBase):
+    """G-code prefix with character"""
+    def __repr__(self):
+        return '(GCodePrefixChar: {})'.format(repr(self.element))
+
+class GCodePrefixInt(GCodePrefixBase):
+    """G-code prefix with integer"""
+    def __repr__(self):
+        return '(GCodePrefixInt: {})'.format(repr(self.element))
+
+class GCodePostfixFloat(GCodeElementBase):
     "G-code float"
     def __repr__(self):
         return '(GCodeFloat: {})'.format(repr(self.element))
+
+class GCode:
+    "G-code object"
+    prefix_char = GCodePrefixChar('')
+    prefix_int = GCodePrefixInt(0)
+    postfix_float = GCodePostfixFloat(0)
+    def __init__(self, prefix_char, prefix_int, postfix_float):
+        self.prefix_char = prefix_char
+        self.prefix_int = prefix_int
+        self.postfix_float = postfix_float
+    def __str__(self):
+        return '{}{}{}'.format(str(self.prefix_char), str(self.prefix_int), str(self.postfix_float))
+    def __repr__(self):
+        return '(GCode: {}, {}, {})'.format(repr(self.prefix_char), \
+                repr(self.prefix_int), repr(self.postfix_float))
 
 class GCodeElementHandler:
     "Handler of G-code elements"
@@ -37,17 +62,17 @@ class GCodeElementHandler:
         temporary_list = list()
         for indic in builtin_element_tuple:
             if isinstance(indic, str):
-                temporary_list.append(GCodePrefix(indic))
+                temporary_list.append(GCodePrefixChar(indic))
             elif isinstance(indic, float):
-                temporary_list.append(GCodeFloat(indic))
-            elif isinstance(indic, GCodePrefix) or isinstance(indic, GCodeFloat):
+                temporary_list.append(GCodePostfixFloat(indic))
+            elif isinstance(indic, GCodePrefixChar) or isinstance(indic, GCodePostfixFloat):
                 temporary_list.append(indic)
         self.memeber_tuple = tuple(temporary_list)
     def __repr__(self):
         return '(GCodeElementHandler: {})'.format(self.memeber_tuple)
     def validate_grammer(self):
         """Validate Grammer"""
-        last_processed_type = type(GCodeFloat())
+        last_processed_type = type(GCodePostfixFloat())
         for indic in self.memeber_tuple:
             if isinstance(indic, last_processed_type):
                 raise GCodeSyntaxError('Check whether prefix and float comes alternately.')
@@ -55,7 +80,7 @@ class GCodeElementHandler:
                 last_processed_type = type(indic)
 
         # Check whether last_processed_type is GCodePrefix
-        if last_processed_type == type(GCodePrefix()):
+        if last_processed_type == type(GCodePrefixChar()):
             raise GCodeSyntaxError('G-code ends with prefix.')
 
         return True
@@ -70,21 +95,9 @@ class GCodeElementHandler:
                 buf = indic
                 odd = False
             else:
-                result_list.append(GCode(buf, indic))
+                result_list.append(GCode(buf, None, indic))
                 odd = True
         return tuple(result_list)
-
-class GCode:
-    "G-code object"
-    prefix = GCodePrefix('')
-    number = GCodeFloat(0)
-    def __init__(self, prefix, number):
-        self.prefix = prefix
-        self.number = number
-    def __str__(self):
-        return '{}{}'.format(str(self.prefix), str(self.number))
-    def __repr__(self):
-        return '(GCode: {}, {})'.format(repr(self.prefix), repr(self.number))
 
 class GCodeException(Exception):
     "Basic exception class for G-code handling"

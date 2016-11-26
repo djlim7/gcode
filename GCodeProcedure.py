@@ -1,7 +1,11 @@
 """GCode Procedure"""
 
 import string
-from . import GCodeObject
+
+try:
+    from . import GCodeObject
+except SystemError:
+    import GCodeObject
 
 class GCodeParser:
     """Parse the GCode into tuple with elements."""
@@ -12,11 +16,13 @@ class GCodeParser:
 
     def parse_syntax(self):
         """Parse the syntax, form text file to Python tuple."""
-        result_list = []
         main_loop = True
         idx = 0
-        last_processed_type = 'space' # 'str', 'float', 'space', 'minus', 'dot'
+        result_list = []
+        last_processed_type = 'space'
+        # 'str', 'int', 'space', 'minus', 'dot', '%'
         while main_loop:
+            # Check EOF
             if idx == len(self.process_string):
                 character = ' '
                 main_loop = False
@@ -27,15 +33,15 @@ class GCodeParser:
             if character in string.ascii_letters:
                 result_list.append(character.upper())
                 last_processed_type = 'str'
-            # 'float'
+            # 'int'
             elif character.isdigit():
                 if last_processed_type == 'str':
                     result_list.append(float(character))
-                elif last_processed_type == 'float':
+                elif last_processed_type == 'int':
                     result_list[-1] = float(result_list[-1]) * 10 + float(character)
                 elif last_processed_type == 'space':
                     result_list.append(float(character))
-                last_processed_type = 'float'
+                last_processed_type = 'int'
             # 'space'
             elif character.isspace():
                 last_processed_type = 'space'
