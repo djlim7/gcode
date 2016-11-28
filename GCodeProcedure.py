@@ -16,6 +16,15 @@ class GCodeParser:
     def __init__(self, process_string):
         self.original_string = process_string
 
+    def run(self):
+        """Run all the GCodeParser's methods"""
+        self.lexical_parse()
+        self.trim_comment_and_specials()
+        self.check_number_rule()
+        self.bind_float()
+        self.bind_to_gcode()
+        return tuple(self.processed_list)
+
     def lexical_parse(self):
         """Lexical parse, form text file to Python tuple."""
         main_loop = True
@@ -69,7 +78,7 @@ class GCodeParser:
                 last_processed_type = GCodeObject.GCodeParserSpecialCharacter
             else:
                 raise GCodeObject.GCodeSyntaxError \
-                    ('The file contains unsupported character: {}'.format(character))
+                    ('The file contains unsupported character: {}, {}'.format(idx, character))
 
             idx += 1
         self.processed_list = tuple(result_list)
@@ -109,9 +118,14 @@ class GCodeParser:
         self.processed_list = list_trimmed_twofold
         return tuple(list_trimmed_twofold)
 
-    def validate_number_rule(self):
+    def check_number_rule(self):
+        """Check number rule wheter the syntax meets"""
         pass
 
     def bind_float(self):
+        """Bind the floats"""
         pass
-    
+
+    def bind_to_gcode(self):
+        """Bind into gcode"""
+        pass
