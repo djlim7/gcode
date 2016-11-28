@@ -10,10 +10,11 @@ except SystemError:
 class GCodeParser:
     """Parse the GCode into tuple with elements."""
     # 'char', 'int', 'space', '-', '.', '(', ')', '%', "'", '"'
-    process_string = None
+    original_string = str()
+    processed_list = tuple()
 
     def __init__(self, process_string):
-        self.process_string = process_string
+        self.original_string = process_string
 
     def lexical_parse(self):
         """Lexical parse, form text file to Python tuple."""
@@ -22,14 +23,14 @@ class GCodeParser:
         result_list = []
         last_processed_type = GCodeObject.GCodeParserSpace
         # Replacement form newline('\n'') to '%'
-        process_string = self.process_string.replace('\n', '%')
+        held_string = self.original_string.replace('\n', '%')
         while main_loop:
             # Check EOF and use space
-            if idx == len(process_string):
+            if idx == len(held_string):
                 character = ' '
                 main_loop = False
             else:
-                character = process_string[idx]
+                character = held_string[idx]
 
             # 'char'
             if character in string.ascii_letters:
@@ -71,5 +72,39 @@ class GCodeParser:
                     ('The file contains unsupported character: {}'.format(character))
 
             idx += 1
-
+        self.processed_list = tuple(result_list)
         return tuple(result_list)
+
+    def trim_comment_and_specials(self):
+        """Trim the comment and special characters."""
+        list_before = list(self.processed_list)
+        list_trimmed_specials = list()
+        list_trimmed_twofold = list()
+
+        # Eliminate special characters
+        for piv in list_before:
+            if isinstance(type(piv), GCodeObject.GCodeParserSpecialCharacter):
+                pass
+            else:
+                list_trimmed_specials.append(piv)
+
+        # Eliminate comments
+        indent_level_head = 0
+        indent_level_tail = 0
+        for piv in list_trimmed_specials:
+            if isinstance(type(piv), GCodeObject.GCodeParserBracketLeft):
+                indent_level_head += 1
+            elif isinstance(type(piv), GCodeObject.GCodeParserBracketRight):
+                indent_level_head -= 1
+
+            if indent_level_head == 0 and indent_level_tail == 0:
+                list_trimmed_twofold.append(piv)
+
+            # Check invalid indent level
+            if indent_level_head < 0:
+                raise GCodeObject.GCodeSyntaxError('Invalid comment wrapping')
+
+            indent_level_tail = indent_level_head
+
+        self.processed_list = list_trimmed_twofold
+        return tuple(list_trimmed_twofold)
