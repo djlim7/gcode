@@ -34,6 +34,8 @@ class GCodeParserChar(GCodeParserElementBase):
 
 class GCodeParserInt(GCodeParserElementBase):
     """G-code parser int element"""
+    def __int__(self):
+        return self.element
     def __repr__(self):
         return '(GCodeParserInt: {})'.format(repr(self.element))
 
@@ -46,6 +48,11 @@ class GCodeParserMinus(GCodeParserElementBase):
     """G-code parser minus element"""
     def __repr__(self):
         return '(GCodeParserMinus: {})'.format(repr(self.element))
+
+class GCodeParserDot(GCodeParserElementBase):
+    """G-code parser dot element"""
+    def __repr__(self):
+        return '(GCodeParserDot: {})'.format(repr(self.element))
 
 class GCodeParserBracketBase(GCodeParserElementBase):
     """G-code parser bracket base"""
@@ -80,6 +87,8 @@ class GCodePrefix(GCodeResultElementBase):
 
 class GCodeFloat(GCodeResultElementBase):
     """G-code float element"""
+    def __float__(self):
+        return self.element
     def __repr__(self):
         return '(GCodeFloat: {})'.format(repr(self.element))
 
