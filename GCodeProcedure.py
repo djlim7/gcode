@@ -108,3 +108,10 @@ class GCodeParser:
 
         self.processed_list = list_trimmed_twofold
         return tuple(list_trimmed_twofold)
+
+    def validate_number_rule(self):
+        pass
+
+    def bind_float(self):
+        pass
+    

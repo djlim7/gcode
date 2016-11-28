@@ -74,6 +74,11 @@ class GCodePrefix(GCodeResultElementBase):
     """G-code prefix element"""
     pass
 
+class GCodeInt(GCodeResultElementBase):
+    """G-code inteagr element"""
+    def __int__(self):
+        return self.element
+
 class GCodeFloat(GCodeResultElementBase):
     """G-code float element"""
     def __float__(self):
@@ -81,16 +86,16 @@ class GCodeFloat(GCodeResultElementBase):
 
 class GCode:
     "G-code object"
-    element_prefix = GCodePrefix('')
-    element_float = GCodeFloat(None)
-    def __init__(self, element_prefix, element_float):
+    element_prefix = None
+    element_num = None
+    def __init__(self, element_prefix, element_num):
         self.element_prefix = element_prefix
-        self.element_float = element_float
+        self.element_num = element_num
     def __str__(self):
-        return '{}{}'.format(str(self.element_prefix), str(self.element_float))
+        return '{}{}'.format(str(self.element_prefix), str(self.element_num))
     def __repr__(self):
         return '({}: {}, {})'.format \
-            (self.__class__.__name__, repr(self.element_prefix), repr(self.element_float))
+            (self.__class__.__name__, repr(self.element_prefix), repr(self.element_num))
 
 class GCodeException(Exception):
     "Basic exception class for G-code handling"
