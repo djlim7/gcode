@@ -20,77 +20,64 @@ class GCodeElementBase:
         self.element = element
     def __str__(self):
         return self.element
+    def __repr__(self):
+        return '({}: {})'.format(self.__class__.__name__, repr(self.element))
 
 # G-code parser elements
 class GCodeParserElementBase(GCodeElementBase):
     """G-code parser element base"""
-    def __repr__(self):
-        return '(GCodeParserElementBase: {})'.format(repr(self.element))
+    pass
 
 class GCodeParserChar(GCodeParserElementBase):
     """G-code parser char element"""
-    def __repr__(self):
-        return '(GCodeParserChar: {})'.format(repr(self.element))
+    pass
 
 class GCodeParserInt(GCodeParserElementBase):
     """G-code parser int element"""
     def __int__(self):
         return self.element
-    def __repr__(self):
-        return '(GCodeParserInt: {})'.format(repr(self.element))
 
 class GCodeParserSpace(GCodeParserElementBase):
     """G-code parser space element"""
-    def __repr__(self):
-        return '(GCodeParserSpace: {})'.format(repr(self.element))
+    pass
 
 class GCodeParserMinus(GCodeParserElementBase):
     """G-code parser minus element"""
-    def __repr__(self):
-        return '(GCodeParserMinus: {})'.format(repr(self.element))
+    pass
 
 class GCodeParserDot(GCodeParserElementBase):
     """G-code parser dot element"""
-    def __repr__(self):
-        return '(GCodeParserDot: {})'.format(repr(self.element))
+    pass
 
 class GCodeParserBracketBase(GCodeParserElementBase):
     """G-code parser bracket base"""
-    def __repr__(self):
-        return '(GCodeParserBracketBase: {})'.format(repr(self.element))
+    pass
 
 class GCodeParserBracketLeft(GCodeParserBracketBase):
     """G-code parser left bracket element"""
-    def __repr__(self):
-        return '(GCodeParserBracketLeft: {})'.format(repr(self.element))
+    pass
 
 class GCodeParserBracketRight(GCodeParserBracketBase):
     """G-code parser right bracket element"""
-    def __repr__(self):
-        return '(GCodeParserBracketRight: {})'.format(repr(self.element))
+    pass
 
 class GCodeParserSpecialCharacter(GCodeParserElementBase):
     """G-code parser special element"""
-    def __repr__(self):
-        return '(GCodeParserSpecialCharacter: {})'.format(repr(self.element))
+    pass
 
 # G-code result elements
 class GCodeResultElementBase(GCodeElementBase):
     """G-code result element base"""
-    def __repr__(self):
-        return '(GCodeResultElementBase: {})'.format(repr(self.element))
+    pass
 
 class GCodePrefix(GCodeResultElementBase):
     """G-code prefix element"""
-    def __repr__(self):
-        return '(GCodePrefix: {})'.format(repr(self.element))
+    pass
 
 class GCodeFloat(GCodeResultElementBase):
     """G-code float element"""
     def __float__(self):
         return self.element
-    def __repr__(self):
-        return '(GCodeFloat: {})'.format(repr(self.element))
 
 class GCode:
     "G-code object"
@@ -102,7 +89,8 @@ class GCode:
     def __str__(self):
         return '{}{}'.format(str(self.element_prefix), str(self.element_float))
     def __repr__(self):
-        return '(GCode: {}, {})'.format(repr(self.element_prefix), repr(self.element_float))
+        return '({}: {}, {})'.format \
+            (self.__class__.__name__, repr(self.element_prefix), repr(self.element_float))
 
 class GCodeException(Exception):
     "Basic exception class for G-code handling"

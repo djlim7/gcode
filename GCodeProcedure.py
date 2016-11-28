@@ -83,8 +83,8 @@ class GCodeParser:
 
         # Eliminate special characters
         for piv in list_before:
-            if isinstance(type(piv), GCodeObject.GCodeParserSpecialCharacter):
-                pass
+            if isinstance(piv, GCodeObject.GCodeParserSpecialCharacter):
+                continue
             else:
                 list_trimmed_specials.append(piv)
 
@@ -92,9 +92,9 @@ class GCodeParser:
         indent_level_head = 0
         indent_level_tail = 0
         for piv in list_trimmed_specials:
-            if isinstance(type(piv), GCodeObject.GCodeParserBracketLeft):
+            if isinstance(piv, GCodeObject.GCodeParserBracketLeft):
                 indent_level_head += 1
-            elif isinstance(type(piv), GCodeObject.GCodeParserBracketRight):
+            elif isinstance(piv, GCodeObject.GCodeParserBracketRight):
                 indent_level_head -= 1
 
             if indent_level_head == 0 and indent_level_tail == 0:
