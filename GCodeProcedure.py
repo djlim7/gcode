@@ -12,9 +12,6 @@ class GCodeParser:
     # 'char', 'int', 'space', '-', '.', '(', ')', '%', "'", '"'
     process_string = None
 
-    def __str__(self):
-        print(self.process_string)
-
     def __init__(self, process_string):
         self.process_string = process_string
 
@@ -24,7 +21,7 @@ class GCodeParser:
         idx = 0
         result_list = []
         last_processed_type = GCodeObject.GCodeParserSpace
-        # Replacement form newline('\n'') to '%''
+        # Replacement form newline('\n'') to '%'
         process_string = self.process_string.replace('\n', '%')
         while main_loop:
             # Check EOF and use space
