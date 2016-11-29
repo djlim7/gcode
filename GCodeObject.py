@@ -97,10 +97,19 @@ class GCode:
         return '({}: {}, {})'.format \
             (self.__class__.__name__, repr(self.element_prefix), repr(self.element_num))
 
-class GCodeException(Exception):
+class GCodeExceptionBase(Exception):
     "Basic exception class for G-code handling"
     pass
 
-class GCodeSyntaxError(GCodeException):
-    "G-code Syntax Error"
+class GCodeExceptionForError(GCodeExceptionBase):
+    """Basic exception class for G-code error"""
+
+class GCodeSyntaxError(GCodeExceptionForError):
+    """G-code syntax error"""
     pass
+
+class GCodeExceptionForLogic(GCodeExceptionBase):
+    """Basic exception class for programming logic"""
+
+class GCodeDeliberateException(GCodeExceptionForLogic):
+    """Deliberate exception"""

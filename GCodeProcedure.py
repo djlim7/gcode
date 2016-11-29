@@ -11,7 +11,7 @@ class GCodeParser:
     """Parse the GCode into tuple with elements."""
     # 'char', 'int', 'space', '-', '.', '(', ')', '%', "'", '"'
     original_string = str()
-    processed_list = tuple()
+    processed_list = list()
 
     def __init__(self, process_string):
         self.original_string = process_string
@@ -20,7 +20,6 @@ class GCodeParser:
         """Run all the GCodeParser's methods"""
         self.lexical_parse()
         self.trim_comment_and_specials()
-        self.check_number_rule()
         self.bind_float()
         self.bind_to_gcode()
         return tuple(self.processed_list)
@@ -81,7 +80,7 @@ class GCodeParser:
                     ('The file contains unsupported character: {}, {}'.format(idx, character))
 
             idx += 1
-        self.processed_list = tuple(result_list)
+        self.processed_list = result_list
         return tuple(result_list)
 
     def trim_comment_and_specials(self):
@@ -118,14 +117,39 @@ class GCodeParser:
         self.processed_list = list_trimmed_twofold
         return tuple(list_trimmed_twofold)
 
-    def check_number_rule(self):
-        """Check number rule wheter the syntax meets"""
-        pass
-
     def bind_float(self):
         """Bind the floats"""
-        pass
+        list_before = self.processed_list
+        list_result = list()
+        list_buf = list()
+
+        allowed_case = ( \
+            (GCodeObject.GCodeParserInt,), \
+            (GCodeObject.GCodeParserInt, GCodeObject.GCodeParserDot, GCodeObject.GCodeParserInt), \
+            (GCodeObject.GCodeParserMinus, GCodeObject.GCodeParserInt, \
+                GCodeObject.GCodeParserDot, GCodeObject.GCodeParserInt))
+
+        for var_before in list_before:
+            if list_buf == list():
+                for var_case_tuple in allowed_case:
+                    if isinstance(var_before, type(var_case_tuple[0])):
+                        list_buf.append(var_before)
+                        break
+                else:
+                    list_result.append(var_before)
+            elif list_buf != list():
+                # Check whether list_buf meets allowed_case
+                buf_for_casecheck = list(list_buf).append(var_before)
+                for var_case_tuple in allowed_case:
+                    for index_casecheck in range(0, buf_for_casecheck):
+                        pass
+
+        self.processed_list = list_result
+        return tuple(list_result)
 
     def bind_to_gcode(self):
         """Bind into gcode"""
+        #list_before = self.processed_list
+        #list_result = list()
+        #odd = True
         pass
