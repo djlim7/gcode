@@ -37,6 +37,11 @@ class GCodeParserInt(GCodeParserElementBase):
     def __int__(self):
         return self.element
 
+class GCodeParserFloat(GCodeParserElementBase):
+    """G-code parser float element"""
+    def __float__(self):
+        return self.element
+
 class GCodeParserSpace(GCodeParserElementBase):
     """G-code parser space element"""
     pass

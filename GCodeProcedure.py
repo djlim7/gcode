@@ -25,6 +25,7 @@ class GCodeParser:
         return tuple(self.processed_list)
 
     def lexical_parse(self):
+        # pylint: disable=too-many-branches
         """Lexical parse, form text file to Python tuple."""
         main_loop = True
         idx = 0
@@ -123,26 +124,39 @@ class GCodeParser:
         list_result = list()
         list_buf = list()
 
-        allowed_case = ( \
+        case_allowed = ( \
             (GCodeObject.GCodeParserInt,), \
             (GCodeObject.GCodeParserInt, GCodeObject.GCodeParserDot, GCodeObject.GCodeParserInt), \
             (GCodeObject.GCodeParserMinus, GCodeObject.GCodeParserInt, \
                 GCodeObject.GCodeParserDot, GCodeObject.GCodeParserInt))
+        case_forbidden_sequence = (GCodeObject.GCodeParserMinus, GCodeObject.GCodeParserDot)
 
         for var_before in list_before:
             if list_buf == list():
-                for var_case_tuple in allowed_case:
+                for var_case_tuple in case_allowed:
                     if isinstance(var_before, type(var_case_tuple[0])):
                         list_buf.append(var_before)
                         break
                 else:
                     list_result.append(var_before)
-            elif list_buf != list():
-                # Check whether list_buf meets allowed_case
+            else:
+                # Append into temporary list
                 buf_for_casecheck = list(list_buf).append(var_before)
-                for var_case_tuple in allowed_case:
-                    for index_casecheck in range(0, buf_for_casecheck):
-                        pass
+                # Check whether buf_for_casecheck meets allowed_case
+                try:
+                    for var_case_tuple in case_allowed:
+                        for index_casecheck in range(0, buf_for_casecheck):
+                            if not isinstance(type(list_buf[index_casecheck]), \
+                                                    var_case_tuple[index_casecheck]):
+                                raise GCodeObject.GCodeDeliberateException()
+                    # If algorithm didn't raised exception,
+                    # buf_for_casecheck is suitable to case_allowed.
+                    # Substitute list_buf with buf_for_casecheck
+                    list_buf = buf_for_casecheck
+                # If logic caught exception, it means
+                # buf_for_casecheck doesn't meet case_allowed.
+                except GCodeObject.GCodeExceptionForLogic:
+                    pass
 
         self.processed_list = list_result
         return tuple(list_result)
