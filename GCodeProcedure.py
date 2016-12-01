@@ -1,5 +1,6 @@
 """GCode Procedure"""
 
+import math
 import string
 
 try:
@@ -122,48 +123,50 @@ class GCodeParser:
         """Bind the floats"""
         list_before = self.processed_list
         list_result = list()
-        list_buf = list()
+        list_location_dot = list()
+        list_location_minus_valid = list()
 
-        case_allowed = ( \
-            (GCodeObject.GCodeParserInt,), \
-            (GCodeObject.GCodeParserInt, GCodeObject.GCodeParserDot, GCodeObject.GCodeParserInt), \
-            (GCodeObject.GCodeParserMinus, GCodeObject.GCodeParserInt, \
-                GCodeObject.GCodeParserDot, GCodeObject.GCodeParserInt))
-        case_forbidden_sequence = (GCodeObject.GCodeParserMinus, GCodeObject.GCodeParserDot)
+        # Check dots' locations
+        for index in range(0, len(list_before)):
+            if isinstance(list_before[index], GCodeObject.GCodeParserDot):
+                list_location_dot.append(index)
 
-        for var_before in list_before:
-            if list_buf == list():
-                for var_case_tuple in case_allowed:
-                    if isinstance(var_before, type(var_case_tuple[0])):
-                        list_buf.append(var_before)
-                        break
+        # Check whether dot(.) is sealed with integars,
+        # and whether minus(-) is valid.
+        for index in list_location_dot:
+            try:
+                if isinstance(list_before[index - 1], GCodeObject.GCodeParserInt) and \
+                    isinstance(list_before[index + 1], GCodeObject.GCodeParserInt):
+                    if isinstance(list_before[index - 2], GCodeObject.GCodeParserMinus):
+                        list_location_minus_valid.append(index - 2)
                 else:
-                    list_result.append(var_before)
-            else:
-                # Append into temporary list
-                buf_for_casecheck = list(list_buf).append(var_before)
-                # Check whether buf_for_casecheck meets allowed_case
-                try:
-                    for var_case_tuple in case_allowed:
-                        for index_casecheck in range(0, buf_for_casecheck):
-                            if not isinstance(type(list_buf[index_casecheck]), \
-                                                    var_case_tuple[index_casecheck]):
-                                raise GCodeObject.GCodeDeliberateException()
-                    # If algorithm didn't raised exception,
-                    # buf_for_casecheck is suitable to case_allowed.
-                    # Substitute list_buf with buf_for_casecheck
-                    list_buf = buf_for_casecheck
-                # If logic caught exception, it means
-                # buf_for_casecheck doesn't meet case_allowed.
-                except GCodeObject.GCodeExceptionForLogic:
-                    pass
+                    raise GCodeObject.GCodeSyntaxError('Dot(.) is not sealed with integers')
+            except IndexError:
+                if index == 1:
+                    continue
+                elif index + 1 == len(list_before):
+                    raise GCodeObject.GCodeSyntaxError('Dot(.) is located in EOF')
+
+        # Bind
+        for index in list_before:
+            if not index - 1 in list_location_dot or \
+                not index in list_location_dot or \
+                not index + 1 in list_location_dot or \
+                not index in list_location_minus_valid:
+                list_result.append(list_before[index])
+            elif index in list_location_dot:
+                calculated = (list_before[index - 1] + (0.1 ** \
+                                int(math.log10(list_before[index + 1].element)) + 1) * \
+                                                                list_before[index + 1])
+                if index - 2 in list_location_minus_valid:
+                    calculated = -calculated
+                list_result.append(GCodeObject.GCodeParserFloat(calculated))
+
+        # Find the unused GCodeObject objects
+        for index in list_result:
+            if isinstance(index, GCodeObject.GCodeParserMinus) or \
+                isinstance(index, GCodeObject.GCodeParserDot):
+                raise GCodeObject.GCodeSyntaxError('Check minus(-) or Dot(.)')
 
         self.processed_list = list_result
         return tuple(list_result)
-
-    def bind_to_gcode(self):
-        """Bind into gcode"""
-        #list_before = self.processed_list
-        #list_result = list()
-        #odd = True
-        pass
