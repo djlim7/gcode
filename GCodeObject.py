@@ -32,12 +32,16 @@ class GCodeParserChar(GCodeParserElementBase):
     """G-code parser char element"""
     pass
 
-class GCodeParserInt(GCodeParserElementBase):
+class GCodeParserNumberBase(GCodeParserElementBase):
+    """G-code parser number element base"""
+    pass
+
+class GCodeParserInt(GCodeParserNumberBase):
     """G-code parser int element"""
     def __int__(self):
         return self.element
 
-class GCodeParserFloat(GCodeParserElementBase):
+class GCodeParserFloat(GCodeParserNumberBase):
     """G-code parser float element"""
     def __float__(self):
         return self.element
@@ -79,12 +83,16 @@ class GCodePrefix(GCodeResultElementBase):
     """G-code prefix element"""
     pass
 
-class GCodeInt(GCodeResultElementBase):
+class GCodeNumberElementBase(GCodeResultElementBase):
+    """G-code number element base"""
+    pass
+
+class GCodeInt(GCodeNumberElementBase):
     """G-code inteagr element"""
     def __int__(self):
         return self.element
 
-class GCodeFloat(GCodeResultElementBase):
+class GCodeFloat(GCodeNumberElementBase):
     """G-code float element"""
     def __float__(self):
         return self.element

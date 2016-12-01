@@ -170,3 +170,28 @@ class GCodeParser:
 
         self.processed_list = list_result
         return tuple(list_result)
+
+    def bind_to_gcode(self):
+        """Bind the list into G-code object"""
+        list_before = self.processed_list
+        odd = False
+        tem_prefix = None
+        tem_number = None
+        list_result = list()
+
+        for index in list_before:
+            odd = not odd
+            if odd and isinstance(index, GCodeObject.GCodeParserChar):
+                tem_prefix = index
+            elif not odd and isinstance(index, GCodeObject.GCodeParserNumberBase):
+                if isinstance(index, GCodeObject.GCodeParserInt):
+                    tem_number = GCodeObject.GCodeInt(index.element)
+                else:
+                    tem_number = GCodeObject.GCodeFloat(index.element)
+                list_result.append(GCodeObject.GCode( \
+                                    GCodeObject.GCodePrefix(tem_prefix.element), tem_number))
+            else:
+                raise GCodeObject.GCodeSyntaxError('Check the sequence of prefixes and numbers')
+
+        self.processed_list = list_result
+        return tuple(list_result)
