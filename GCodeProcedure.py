@@ -148,7 +148,7 @@ class GCodeParser:
                     raise GCodeObject.GCodeSyntaxError('Dot(.) is located in EOF')
 
         # Bind
-        for index in list_before:
+        for index in range(0, len(list_before)):
             if not index - 1 in list_location_dot or \
                 not index in list_location_dot or \
                 not index + 1 in list_location_dot or \
