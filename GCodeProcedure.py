@@ -149,9 +149,9 @@ class GCodeParser:
 
         # Bind
         for index in range(0, len(list_before)):
-            if not index - 1 in list_location_dot or \
-                not index in list_location_dot or \
-                not index + 1 in list_location_dot or \
+            if not index - 1 in list_location_dot and \
+                not index in list_location_dot and \
+                not index + 1 in list_location_dot and \
                 not index in list_location_minus_valid:
                 list_result.append(list_before[index])
             elif index in list_location_dot:
