@@ -124,6 +124,7 @@ class GCodeParser:
         return tuple(list_trimmed_twofold)
 
     def bind_float(self):
+        # pylint: disable=too-many-branches
         """Bind the floats"""
         list_before = self.processed_list
         list_result = list()
@@ -188,6 +189,7 @@ class GCodeParser:
         return tuple(list_result)
 
     def bind_to_gcode(self):
+        # pylint: disable=redefined-variable-type
         """Bind the list into G-code object"""
         list_before = self.processed_list
         odd = False
