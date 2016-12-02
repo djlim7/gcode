@@ -117,6 +117,9 @@ class GCodeParser:
 
             indent_level_tail = indent_level_head
 
+        if indent_level_head:
+            raise GCodeObject.GCodeSyntaxError('Invalid comment wrapping indent level')
+
         self.processed_list = list_trimmed_twofold
         return tuple(list_trimmed_twofold)
 
