@@ -12,84 +12,117 @@ def custom_coroutine_wrapper(func):
         return cr_obj
     return init
 
+# G-code element base class
 class GCodeElementBase:
-    "G-code element"
+    "G-code element base"
     element = None
     def __init__(self, element=None):
         self.element = element
     def __str__(self):
         return self.element
-
-class GCodePrefix(GCodeElementBase):
-    "G-code prefix"
     def __repr__(self):
-        return '(GCodePrefix: {})'.format(repr(self.element))
+        return '({}: {})'.format(self.__class__.__name__, repr(self.element))
 
-class GCodeFloat(GCodeElementBase):
-    "G-code float"
-    def __repr__(self):
-        return '(GCodeFloat: {})'.format(repr(self.element))
+# G-code parser elements
+class GCodeParserElementBase(GCodeElementBase):
+    """G-code parser element base"""
+    pass
 
-class GCodeElementHandler:
-    "Handler of G-code elements"
-    memeber_tuple = None
-    def __init__(self, builtin_element_tuple):
-        temporary_list = list()
-        for indic in builtin_element_tuple:
-            if isinstance(indic, str):
-                temporary_list.append(GCodePrefix(indic))
-            elif isinstance(indic, float):
-                temporary_list.append(GCodeFloat(indic))
-            elif isinstance(indic, GCodePrefix) or isinstance(indic, GCodeFloat):
-                temporary_list.append(indic)
-        self.memeber_tuple = tuple(temporary_list)
-    def __repr__(self):
-        return '(GCodeElementHandler: {})'.format(self.memeber_tuple)
-    def validate_grammer(self):
-        """Validate Grammer"""
-        last_processed_type = type(GCodeFloat())
-        for indic in self.memeber_tuple:
-            if isinstance(indic, last_processed_type):
-                raise GCodeSyntaxError('Check whether prefix and float comes alternately.')
-            else:
-                last_processed_type = type(indic)
+class GCodeParserChar(GCodeParserElementBase):
+    """G-code parser char element"""
+    pass
 
-        # Check whether last_processed_type is GCodePrefix
-        if last_processed_type == type(GCodePrefix()):
-            raise GCodeSyntaxError('G-code ends with prefix.')
+class GCodeParserNumberBase(GCodeParserElementBase):
+    """G-code parser number element base"""
+    pass
 
-        return True
-    def bind_to_gcode(self):
-        """Bind to GCode"""
-        self.validate_grammer()
-        result_list = list()
-        buf = None
-        odd = True
-        for indic in self.memeber_tuple:
-            if odd:
-                buf = indic
-                odd = False
-            else:
-                result_list.append(GCode(buf, indic))
-                odd = True
-        return tuple(result_list)
+class GCodeParserInt(GCodeParserNumberBase):
+    """G-code parser int element"""
+    def __int__(self):
+        return self.element
+
+class GCodeParserFloat(GCodeParserNumberBase):
+    """G-code parser float element"""
+    def __float__(self):
+        return self.element
+
+class GCodeParserSpace(GCodeParserElementBase):
+    """G-code parser space element"""
+    pass
+
+class GCodeParserMinus(GCodeParserElementBase):
+    """G-code parser minus element"""
+    pass
+
+class GCodeParserDot(GCodeParserElementBase):
+    """G-code parser dot element"""
+    pass
+
+class GCodeParserBracketBase(GCodeParserElementBase):
+    """G-code parser bracket base"""
+    pass
+
+class GCodeParserBracketLeft(GCodeParserBracketBase):
+    """G-code parser left bracket element"""
+    pass
+
+class GCodeParserBracketRight(GCodeParserBracketBase):
+    """G-code parser right bracket element"""
+    pass
+
+class GCodeParserSpecialCharacter(GCodeParserElementBase):
+    """G-code parser special element"""
+    pass
+
+# G-code result elements
+class GCodeResultElementBase(GCodeElementBase):
+    """G-code result element base"""
+    pass
+
+class GCodePrefix(GCodeResultElementBase):
+    """G-code prefix element"""
+    pass
+
+class GCodeNumberElementBase(GCodeResultElementBase):
+    """G-code number element base"""
+    pass
+
+class GCodeInt(GCodeNumberElementBase):
+    """G-code inteagr element"""
+    def __int__(self):
+        return self.element
+
+class GCodeFloat(GCodeNumberElementBase):
+    """G-code float element"""
+    def __float__(self):
+        return self.element
 
 class GCode:
     "G-code object"
-    prefix = GCodePrefix('')
-    number = GCodeFloat(0)
-    def __init__(self, prefix, number):
-        self.prefix = prefix
-        self.number = number
+    element_prefix = None
+    element_num = None
+    def __init__(self, element_prefix, element_num):
+        self.element_prefix = element_prefix
+        self.element_num = element_num
     def __str__(self):
-        return '{}{}'.format(str(self.prefix), str(self.number))
+        return '{}{}'.format(str(self.element_prefix), str(self.element_num))
     def __repr__(self):
-        return '(GCode: {}, {})'.format(repr(self.prefix), repr(self.number))
+        return '({}: {}, {})'.format \
+            (self.__class__.__name__, repr(self.element_prefix), repr(self.element_num))
 
-class GCodeException(Exception):
+class GCodeExceptionBase(Exception):
     "Basic exception class for G-code handling"
     pass
 
-class GCodeSyntaxError(GCodeException):
-    "G-code Syntax Error"
+class GCodeExceptionForError(GCodeExceptionBase):
+    """Basic exception class for G-code error"""
+
+class GCodeSyntaxError(GCodeExceptionForError):
+    """G-code syntax error"""
     pass
+
+class GCodeExceptionForLogic(GCodeExceptionBase):
+    """Basic exception class for programming logic"""
+
+class GCodeDeliberateException(GCodeExceptionForLogic):
+    """Deliberate exception"""
