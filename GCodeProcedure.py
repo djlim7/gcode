@@ -152,8 +152,8 @@ class GCodeParser:
                     raise GCodeObject.GCodeSyntaxError('Dot(.) is located in EOF')
 
         # Bind
-        index_log10 = 0
         for index in range(0, len(list_before)):
+            index_log10 = 0
             calculated = decimal.Decimal(1)
 
             if not index - 1 in list_location_dot and \
