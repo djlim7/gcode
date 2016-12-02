@@ -10,8 +10,25 @@ except SystemError:
     import GCodeObject
 
 class GCodeParser:
-    """Parse the GCode into tuple with elements."""
-    # 'char', 'int', 'space', '-', '.', '(', ')', '%', "'", '"'
+    """Parse the GCode into tuple with elements.
+
+Overview:
+This class handle str and convert it into GCodeObject.GCode.
+
+Example:
+'X-12.0056'
+    * lexical_parse()
+(GCodeObject.GCodeParserChar('X'), GCodeObject.GCodeParserMinus('-'), \
+GCodeObject.GCodeParserInt(12), GCodeObject.GCodeParserDot('.'), \
+GCodeObject.GCodeParserInt(56))
+    * trim_comment_and_specials()
+    * bind_float()
+(GCodeObject.GCodeParserChar('X'), GCodeObject.GCodeParserFloat(12.0056))
+    * bind_to_gcode()
+(GCodeObject.GCode(GCodeObject.GCodeChar('x'), GCodeObject.GCodeInt(12.0056)))
+
+Supported characters:
+'char', 'int', 'space', '-', '.', '(', ')', '%', "'", '"'"""
     string_original = str()
     list_lexical_parse = list()
     list_trim_comment_and_specials = list()
@@ -31,7 +48,11 @@ class GCodeParser:
 
     def lexical_parse(self):
         # pylint: disable=too-many-branches
-        """Lexical parse, form text file to Python tuple."""
+        """Lexical parse, form text file to Python tuple.
+
+Notice:
+lexical_parse doesn't collect zero(0)s located after dot(.).
+The zero(0)s are binded at bind_float()."""
         main_loop = True
         idx = int()
         result_list = list()
