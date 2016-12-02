@@ -149,20 +149,26 @@ class GCodeParser:
                     raise GCodeObject.GCodeSyntaxError('Dot(.) is located in EOF')
 
         # Bind
-        calculated = decimal.Decimal(1)
         index_log10 = 0
         for index in range(0, len(list_before)):
+            calculated = decimal.Decimal(1)
+
             if not index - 1 in list_location_dot and \
                 not index in list_location_dot and \
                 not index + 1 in list_location_dot and \
                 not index in list_location_minus_valid:
                 list_result.append(list_before[index])
             elif index in list_location_dot:
-                while index_log10 < math.log10(list_before[index + 1].element):
-                    calculated = calculated * decimal.Decimal('0.1')
-                    index_log10 += 1
+                try:
+                    while index_log10 < math.log10(list_before[index + 1].element):
+                        calculated = calculated * decimal.Decimal('0.1')
+                        index_log10 += 1
+                # Check and process the zero
+                except ValueError:
+                    if list_before[index + 1].element == 0:
+                        calculated = decimal.Decimal(0)
 
-                calculated = calculated * list_before[index + 1].element
+                calculated = calculated * decimal.Decimal(list_before[index + 1].element)
                 calculated = list_before[index - 1].element + calculated
 
                 if index - 2 in list_location_minus_valid:
