@@ -1,5 +1,6 @@
 """GCode Procedure"""
 
+import decimal
 import math
 import string
 
@@ -148,6 +149,8 @@ class GCodeParser:
                     raise GCodeObject.GCodeSyntaxError('Dot(.) is located in EOF')
 
         # Bind
+        calculated = decimal.Decimal(1)
+        index_log10 = 0
         for index in range(0, len(list_before)):
             if not index - 1 in list_location_dot and \
                 not index in list_location_dot and \
@@ -155,12 +158,16 @@ class GCodeParser:
                 not index in list_location_minus_valid:
                 list_result.append(list_before[index])
             elif index in list_location_dot:
-                calculated = (list_before[index - 1] + (0.1 ** \
-                                int(math.log10(list_before[index + 1].element)) + 1) * \
-                                                                list_before[index + 1])
+                while index_log10 < math.log10(list_before[index + 1].element):
+                    calculated = calculated * decimal.Decimal('0.1')
+                    index_log10 += 1
+
+                calculated = calculated * list_before[index + 1].element
+                calculated = list_before[index - 1].element + calculated
+
                 if index - 2 in list_location_minus_valid:
                     calculated = -calculated
-                list_result.append(GCodeObject.GCodeParserFloat(calculated))
+                list_result.append(GCodeObject.GCodeParserFloat(float(calculated)))
 
         # Find the unused GCodeObject objects
         for index in list_result:
