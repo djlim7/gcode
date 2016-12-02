@@ -12,11 +12,14 @@ except SystemError:
 class GCodeParser:
     """Parse the GCode into tuple with elements."""
     # 'char', 'int', 'space', '-', '.', '(', ')', '%', "'", '"'
-    original_string = str()
-    processed_list = list()
+    string_original = str()
+    list_lexical_parse = list()
+    list_trim_comment_and_specials = list()
+    list_bind_float = list()
+    list_bind_to_gcode = list()
 
-    def __init__(self, process_string):
-        self.original_string = process_string
+    def __init__(self, string_process):
+        self.string_original = string_process
 
     def run(self):
         """Run all the GCodeParser's methods"""
@@ -24,17 +27,17 @@ class GCodeParser:
         self.trim_comment_and_specials()
         self.bind_float()
         self.bind_to_gcode()
-        return tuple(self.processed_list)
+        return tuple(self.list_bind_to_gcode)
 
     def lexical_parse(self):
         # pylint: disable=too-many-branches
         """Lexical parse, form text file to Python tuple."""
         main_loop = True
-        idx = 0
-        result_list = []
+        idx = int()
+        result_list = list()
         last_processed_type = GCodeObject.GCodeParserSpace
         # Replacement form newline('\n'') to '%'
-        held_string = self.original_string.replace('\n', '%')
+        held_string = self.string_original.replace('\n', '%')
         while main_loop:
             # Check EOF and use space
             if idx == len(held_string):
@@ -83,12 +86,12 @@ class GCodeParser:
                     ('The file contains unsupported character: {}, {}'.format(idx, character))
 
             idx += 1
-        self.processed_list = result_list
+        self.list_lexical_parse = result_list
         return tuple(result_list)
 
     def trim_comment_and_specials(self):
         """Trim the comment and special characters."""
-        list_before = list(self.processed_list)
+        list_before = list(self.list_lexical_parse)
         list_trimmed_specials = list()
         list_trimmed_twofold = list()
 
@@ -120,13 +123,13 @@ class GCodeParser:
         if indent_level_head:
             raise GCodeObject.GCodeSyntaxError('Invalid comment wrapping indent level')
 
-        self.processed_list = list_trimmed_twofold
+        self.list_trim_comment_and_specials = list_trimmed_twofold
         return tuple(list_trimmed_twofold)
 
     def bind_float(self):
         # pylint: disable=too-many-branches
         """Bind the floats"""
-        list_before = self.processed_list
+        list_before = self.list_trim_comment_and_specials
         list_result = list()
         list_location_dot = list()
         list_location_minus_valid = list()
@@ -185,13 +188,13 @@ class GCodeParser:
                 isinstance(index, GCodeObject.GCodeParserDot):
                 raise GCodeObject.GCodeSyntaxError('Check minus(-) or Dot(.)')
 
-        self.processed_list = list_result
+        self.list_bind_float = list_result
         return tuple(list_result)
 
     def bind_to_gcode(self):
         # pylint: disable=redefined-variable-type
         """Bind the list into G-code object"""
-        list_before = self.processed_list
+        list_before = self.list_bind_float
         odd = False
         tem_prefix = None
         tem_number = None
@@ -211,5 +214,5 @@ class GCodeParser:
             else:
                 raise GCodeObject.GCodeSyntaxError('Check the sequence of prefixes and numbers')
 
-        self.processed_list = list_result
+        self.list_bind_to_gcode = list_result
         return tuple(list_result)
