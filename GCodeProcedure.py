@@ -1,7 +1,6 @@
 """GCode Procedure"""
 
 import decimal
-import math
 import string
 
 try:
@@ -194,8 +193,9 @@ The zero(0)s are binded at bind_float()."""
 
         # Bind
         for index in range(0, len(list_before)):
-            index_log10 = 0
-            spot_actual_number = 0
+            actual_number_len = 0
+            actual_number_spot = None
+            actual_number_value = None
             calculated = decimal.Decimal(1)
 
             if not index - 1 in list_location_dot and \
@@ -206,21 +206,28 @@ The zero(0)s are binded at bind_float()."""
                 not index in list_location_minus_valid:
                 list_result.append(list_before[index])
             elif index in list_location_dot:
-                spot_actual_number = (index + 2) if isinstance(list_before[index + 1], \
-                                GCodeObject.GCodeParserDigitAfterDot) else (index + 1)
+                if isinstance(list_before[index + 1], GCodeObject.GCodeParserDigitAfterDot):
+                    try:
+                        if isinstance(list_before[index + 2], GCodeObject.GCodeParserInt):
+                            actual_number_spot = index + 2
+                        else:
+                            pass
+                    except IndexError:
+                        pass
                 try:
-                    if spot_actual_number == index + 2:
-                        index_log10 -= list_before[index + 1].element
-                    while index_log10 < math.log10(list_before[spot_actual_number].element):
+                    if actual_number_spot == index + 2:
+                        actual_number_len -= list_before[index + 1].element
+                    while actual_number_len < len(str(list_before[actual_number_spot].element)):
                         calculated = calculated * decimal.Decimal('0.1')
-                        index_log10 += 1
-                # log10(0) is undefined, so it raises ValueError.
-                # So check and process the zero.
-                except ValueError:
-                    if list_before[spot_actual_number].element == 0:
-                        calculated = decimal.Decimal(0)
+                        actual_number_len += 1
+                # If actual_number_spot is None, list raises TypeError.
+                except TypeError:
+                    actual_number_value = 0
+                # If len() didn't raised TypeError, actual_number_value is this:
+                if actual_number_value == None:
+                    actual_number_value = list_before[actual_number_spot].element
 
-                calculated = calculated * decimal.Decimal(list_before[spot_actual_number].element)
+                calculated = calculated * decimal.Decimal(actual_number_value)
                 calculated = list_before[index - 1].element + calculated
 
                 if index - 2 in list_location_minus_valid:
