@@ -73,10 +73,7 @@ The zero(0)s are binded at bind_float()."""
                 last_processed_type = GCodeObject.GCodeParserChar
             # 'zero' after dot(.) or ordinary int
             elif character.isdigit():
-                if last_processed_type == GCodeObject.GCodeParserChar:
-                    result_list.append(GCodeObject.GCodeParserInt(int(character)))
-                    last_processed_type = GCodeObject.GCodeParserInt
-                elif last_processed_type == GCodeObject.GCodeParserDot:
+                if last_processed_type == GCodeObject.GCodeParserDot:
                     if character == '0':
                         result_list.append(GCodeObject.GCodeParserDigitAfterDot(1))
                         last_processed_type = GCodeObject.GCodeParserDigitAfterDot
@@ -93,6 +90,9 @@ The zero(0)s are binded at bind_float()."""
                 elif last_processed_type == GCodeObject.GCodeParserInt:
                     result_list[-1] = GCodeObject.GCodeParserInt \
                                             (int(result_list[-1]) * 10 + int(character))
+                    last_processed_type = GCodeObject.GCodeParserInt
+                else:
+                    result_list.append(GCodeObject.GCodeParserInt(int(character)))
                     last_processed_type = GCodeObject.GCodeParserInt
             # 'space'
             elif character.isspace():
@@ -180,7 +180,8 @@ The zero(0)s are binded at bind_float()."""
         for index in list_location_dot:
             try:
                 if isinstance(list_before[index - 1], GCodeObject.GCodeParserInt) and \
-                    isinstance(list_before[index + 1], GCodeObject.GCodeParserInt):
+                    (isinstance(list_before[index + 1], GCodeObject.GCodeParserInt) or \
+                        isinstance(list_before[index + 1], GCodeObject.GCodeParserDigitAfterDot)):
                     if isinstance(list_before[index - 2], GCodeObject.GCodeParserMinus):
                         list_location_minus_valid.append(index - 2)
                 else:
@@ -194,24 +195,32 @@ The zero(0)s are binded at bind_float()."""
         # Bind
         for index in range(0, len(list_before)):
             index_log10 = 0
+            spot_actual_number = 0
             calculated = decimal.Decimal(1)
 
             if not index - 1 in list_location_dot and \
                 not index in list_location_dot and \
                 not index + 1 in list_location_dot and \
+                (False if isinstance(list_before[index], GCodeObject.GCodeParserInt) and \
+                index - 2 in list_location_dot else True) and \
                 not index in list_location_minus_valid:
                 list_result.append(list_before[index])
             elif index in list_location_dot:
+                spot_actual_number = (index + 2) if isinstance(list_before[index + 1], \
+                                GCodeObject.GCodeParserDigitAfterDot) else (index + 1)
                 try:
-                    while index_log10 < math.log10(list_before[index + 1].element):
+                    if spot_actual_number == index + 2:
+                        index_log10 -= list_before[index + 1].element
+                    while index_log10 < math.log10(list_before[spot_actual_number].element):
                         calculated = calculated * decimal.Decimal('0.1')
                         index_log10 += 1
-                # Check and process the zero
+                # log10(0) is undefined, so it raises ValueError.
+                # So check and process the zero.
                 except ValueError:
-                    if list_before[index + 1].element == 0:
+                    if list_before[spot_actual_number].element == 0:
                         calculated = decimal.Decimal(0)
 
-                calculated = calculated * decimal.Decimal(list_before[index + 1].element)
+                calculated = calculated * decimal.Decimal(list_before[spot_actual_number].element)
                 calculated = list_before[index - 1].element + calculated
 
                 if index - 2 in list_location_minus_valid:
