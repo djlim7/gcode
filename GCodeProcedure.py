@@ -174,15 +174,14 @@ The zero(0)s are binded at bind_float()."""
             if isinstance(list_before[index], GCodeObject.GCodeParserDot):
                 list_location_dot.append(index)
 
-        # Check whether dot(.) is sealed with integars,
-        # and whether minus(-) is valid.
+        # Check whether dot(.) is sealed with integars.
         for index in list_location_dot:
             try:
                 if isinstance(list_before[index - 1], GCodeObject.GCodeParserInt) and \
-                    (isinstance(list_before[index + 1], GCodeObject.GCodeParserInt) or \
-                        isinstance(list_before[index + 1], GCodeObject.GCodeParserDigitAfterDot)):
-                    if isinstance(list_before[index - 2], GCodeObject.GCodeParserMinus):
-                        list_location_minus_valid.append(index - 2)
+                    (True if isinstance(list_before[index + 1], GCodeObject.GCodeParserInt) or \
+                    isinstance(list_before[index + 1], GCodeObject.GCodeParserDigitAfterDot) \
+                                                                                else False):
+                    pass
                 else:
                     raise GCodeObject.GCodeSyntaxError('Dot(.) is not sealed with integers')
             except IndexError:
@@ -190,6 +189,12 @@ The zero(0)s are binded at bind_float()."""
                     continue
                 elif index + 1 == len(list_before):
                     raise GCodeObject.GCodeSyntaxError('Dot(.) is located in EOF')
+
+        # Check whether minus(-) is valid
+        for index in range(0, len(list_before)):
+            if isinstance(list_before[index - 1], GCodeObject.GCodeParserMinus) and \
+                    isinstance(list_before[index], GCodeObject.GCodeParserInt):
+                list_location_minus_valid.append(index - 1)
 
         # Bind
         for index in range(0, len(list_before)):
