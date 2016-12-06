@@ -20,7 +20,7 @@ Example:
     * lexical_parse()
 (GCodeObject.GCodeParserChar('X'), GCodeObject.GCodeParserMinus('-'), \
 GCodeObject.GCodeParserInt(12), GCodeObject.GCodeParserDot('.'), \
-GCodeObject.GCodeParserInt(56))
+GCodeObject.GCodeParserDigitAfterDot(2), GCodeObject.GCodeParserInt(56))
     * trim_comment_and_specials()
     * bind_float()
 (GCodeObject.GCodeParserChar('X'), GCodeObject.GCodeParserFloat(12.0056))
@@ -57,10 +57,10 @@ The zero(0)s are binded at bind_float()."""
         idx = int()
         result_list = list()
         last_processed_type = GCodeObject.GCodeParserSpace
-        # Replacement form newline('\n'') to '%'
+        # Replacement form newline('\n') to '%'
         held_string = self.string_original.replace('\n', '%')
         while main_loop:
-            # Check EOF and use space
+            # Check EOF and replace character with space
             if idx == len(held_string):
                 character = ' '
                 main_loop = False
@@ -71,14 +71,29 @@ The zero(0)s are binded at bind_float()."""
             if character in string.ascii_letters:
                 result_list.append(GCodeObject.GCodeParserChar(character.upper()))
                 last_processed_type = GCodeObject.GCodeParserChar
-            # 'int'
+            # 'zero' after dot(.) or ordinary int
             elif character.isdigit():
-                if last_processed_type == GCodeObject.GCodeParserInt:
-                    result_list[-1] = GCodeObject.GCodeParserInt \
-                        (int(result_list[-1]) * 10 + int(character))
-                else:
+                if last_processed_type == GCodeObject.GCodeParserChar:
                     result_list.append(GCodeObject.GCodeParserInt(int(character)))
-                last_processed_type = GCodeObject.GCodeParserInt
+                    last_processed_type = GCodeObject.GCodeParserInt
+                elif last_processed_type == GCodeObject.GCodeParserDot:
+                    if character == '0':
+                        result_list.append(GCodeObject.GCodeParserDigitAfterDot(1))
+                        last_processed_type = GCodeObject.GCodeParserDigitAfterDot
+                    else:
+                        result_list.append(GCodeObject.GCodeParserInt(int(character)))
+                        last_processed_type = GCodeObject.GCodeParserInt
+                elif last_processed_type == GCodeObject.GCodeParserDigitAfterDot:
+                    if character == '0':
+                        result_list[-1].element += 1
+                        last_processed_type = GCodeObject.GCodeParserDigitAfterDot
+                    else:
+                        result_list.append(GCodeObject.GCodeParserInt(int(character)))
+                        last_processed_type = GCodeObject.GCodeParserInt
+                elif last_processed_type == GCodeObject.GCodeParserInt:
+                    result_list[-1] = GCodeObject.GCodeParserInt \
+                                            (int(result_list[-1]) * 10 + int(character))
+                    last_processed_type = GCodeObject.GCodeParserInt
             # 'space'
             elif character.isspace():
                 last_processed_type = GCodeObject.GCodeParserSpace
