@@ -206,14 +206,15 @@ The zero(0)s are binded at bind_float()."""
                 not index in list_location_minus_valid:
                 list_result.append(list_before[index])
             elif index in list_location_dot:
-                if isinstance(list_before[index + 1], GCodeObject.GCodeParserDigitAfterDot):
-                    try:
-                        if isinstance(list_before[index + 2], GCodeObject.GCodeParserInt):
-                            actual_number_spot = index + 2
-                        else:
-                            pass
-                    except IndexError:
-                        pass
+                try:
+                    if isinstance(list_before[index + 1], GCodeObject.GCodeParserDigitAfterDot) and\
+                        isinstance(list_before[index + 2], GCodeObject.GCodeParserInt):
+                        actual_number_spot = index + 2
+                    elif isinstance(list_before[index + 1], GCodeObject.GCodeParserInt):
+                        actual_number_spot = index + 1
+                except IndexError:
+                    pass
+
                 try:
                     if actual_number_spot == index + 2:
                         actual_number_len -= list_before[index + 1].element
@@ -224,7 +225,7 @@ The zero(0)s are binded at bind_float()."""
                 except TypeError:
                     actual_number_value = 0
                 # If len() didn't raised TypeError, actual_number_value is this:
-                if actual_number_value == None:
+                if actual_number_value is None:
                     actual_number_value = list_before[actual_number_spot].element
 
                 calculated = calculated * decimal.Decimal(actual_number_value)
