@@ -166,8 +166,15 @@ The zero(0)s are binded at bind_float()."""
         """Bind the floats"""
         list_before = self.list_trim_comment_and_specials
         list_result = list()
+        list_location_num = list()
         list_location_dot = list()
         list_location_minus_valid = list()
+
+        # Check numbers' locations
+        for index in range(0, len(list_before)):
+            if isinstance(list_before[index].element, int) or \
+                isinstance(list_before[index].element, float):
+                list_location_num.append(index)
 
         # Check dots' locations
         for index in range(0, len(list_before)):
@@ -198,19 +205,25 @@ The zero(0)s are binded at bind_float()."""
 
         # Bind
         for index in range(0, len(list_before)):
-            actual_number_len = 0
-            actual_number_spot = None
-            actual_number_value = None
+            # Initialize variables
+            actual_spot_minuscheck = False
             calculated = decimal.Decimal(1)
 
+            # Prefixes
             if not index - 1 in list_location_dot and \
                 not index in list_location_dot and \
                 not index + 1 in list_location_dot and \
                 (False if isinstance(list_before[index], GCodeObject.GCodeParserInt) and \
                 index - 2 in list_location_dot else True) and \
+                not index - 1 in list_location_minus_valid and \
                 not index in list_location_minus_valid:
                 list_result.append(list_before[index])
+            # Floats - it works with dots
             elif index in list_location_dot:
+                # Initialize variables
+                actual_number_len = 0
+                actual_number_spot = None
+                actual_number_value = None
                 try:
                     if isinstance(list_before[index + 1], GCodeObject.GCodeParserDigitAfterDot) and\
                         isinstance(list_before[index + 2], GCodeObject.GCodeParserInt):
@@ -235,15 +248,31 @@ The zero(0)s are binded at bind_float()."""
 
                 calculated = calculated * decimal.Decimal(actual_number_value)
                 calculated = list_before[index - 1].element + calculated
-
-                if index - 2 in list_location_minus_valid:
-                    calculated = -calculated
                 list_result.append(GCodeObject.GCodeParserFloat(float(calculated)))
+                actual_spot_minuscheck = True
+
+                #if index - 2 in list_location_minus_valid:
+                #    calculated = -calculated
+                #list_result.append(GCodeObject.GCodeParserFloat(float(calculated)))
+            # Integers - it works with integers
+            elif index in list_location_num and \
+                    not index - 1 in list_location_dot and \
+                    not index + 1 in list_location_dot:
+                list_result.append(list_before[index])
+                actual_spot_minuscheck = True
+
+            # Check minus and reverse
+            if actual_spot_minuscheck:
+                if (True if index - 2 in list_location_minus_valid and \
+                            index in list_location_dot else False) or \
+                    (True if index - 1 in list_location_minus_valid and \
+                            index in list_location_num else False):
+                    list_result[-1].element = -list_result[-1].element
 
         # Find the unused GCodeObject objects
-        for index in list_result:
-            if isinstance(index, GCodeObject.GCodeParserMinus) or \
-                isinstance(index, GCodeObject.GCodeParserDot):
+        for elem in list_result:
+            if isinstance(elem, GCodeObject.GCodeParserMinus) or \
+                isinstance(elem, GCodeObject.GCodeParserDot):
                 raise GCodeObject.GCodeSyntaxError('Check minus(-) or Dot(.)')
 
         self.list_bind_float = list_result
@@ -271,6 +300,10 @@ The zero(0)s are binded at bind_float()."""
                                     GCodeObject.GCodePrefix(tem_prefix.element), tem_number))
             else:
                 raise GCodeObject.GCodeSyntaxError('Check the sequence of prefixes and numbers')
+
+        # If odd is True, g-code sequence does not ends with number.
+        if odd:
+            raise GCodeObject.GCodeSyntaxError('G-code ends with numbers')
 
         self.list_bind_to_gcode = list_result
         return tuple(list_result)
