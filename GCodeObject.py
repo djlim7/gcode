@@ -71,7 +71,12 @@ class GCodeParserBracketRight(GCodeParserBracketBase):
     pass
 
 class GCodeParserSpecialCharacter(GCodeParserElementBase):
-    """G-code parser special element"""
+    """G-code parser special character element"""
+    pass
+
+class GCodeParserDigitAfterDot(GCodeParserElementBase):
+    """G-code parser element which shows how many zero(0)s are located after dot(.).
+This class is special. It works distinctively."""
     pass
 
 # G-code result elements
