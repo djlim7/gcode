@@ -118,7 +118,7 @@ The zero(0)s are binded at bind_float()."""
                 last_processed_type = GCodeObject.GCodeParserSpecialCharacter
             else:
                 raise GCodeObject.GCodeSyntaxError \
-                    ('The file contains unsupported character: {}, {}'.format(idx, character))
+                    ('The file contains unsupported character', idx, character)
 
             idx += 1
         self.list_lexical_parse = result_list
@@ -151,12 +151,13 @@ The zero(0)s are binded at bind_float()."""
 
             # Check invalid indent level
             if indent_level_head < 0:
-                raise GCodeObject.GCodeSyntaxError('Invalid comment wrapping')
+                raise GCodeObject.GCodeSyntaxError('Invalid comment wrapping', piv)
 
             indent_level_tail = indent_level_head
 
         if indent_level_head:
-            raise GCodeObject.GCodeSyntaxError('Invalid comment wrapping indent level')
+            raise GCodeObject.GCodeSyntaxError('Invalid comment wrapping indent level' \
+                                                                , indent_level_head)
 
         self.list_trim_comment_and_specials = list_trimmed_twofold
         return tuple(list_trimmed_twofold)
@@ -166,20 +167,29 @@ The zero(0)s are binded at bind_float()."""
         """Bind the floats"""
         list_before = self.list_trim_comment_and_specials
         list_result = list()
+        list_location_digitafterdot = list()
         list_location_num = list()
         list_location_dot = list()
         list_location_minus_valid = list()
 
-        # Check numbers' locations
+        # Check numbers' locations and dots' locations
         for index in range(0, len(list_before)):
-            if isinstance(list_before[index].element, int) or \
+            # Check dots' (after digits) locations
+            if isinstance(list_before[index], GCodeObject.GCodeParserDigitAfterDot):
+                list_location_digitafterdot.append(index)
+            # (If list_before[index] is not GCodeObject.GCodeParserDigitAfterDot,
+            # it will be ordinary numbers.)
+            # Check numbers' locations
+            elif isinstance(list_before[index].element, int) or \
                 isinstance(list_before[index].element, float):
                 list_location_num.append(index)
-
-        # Check dots' locations
-        for index in range(0, len(list_before)):
+            # Check numbers' locations
             if isinstance(list_before[index], GCodeObject.GCodeParserDot):
                 list_location_dot.append(index)
+            # Check whether minus(-) is valid
+            if isinstance(list_before[index - 1], GCodeObject.GCodeParserMinus) and \
+                    isinstance(list_before[index], GCodeObject.GCodeParserInt):
+                list_location_minus_valid.append(index - 1)
 
         # Check whether dot(.) is sealed with integars.
         for index in list_location_dot:
@@ -190,18 +200,12 @@ The zero(0)s are binded at bind_float()."""
                                                                                 else False):
                     pass
                 else:
-                    raise GCodeObject.GCodeSyntaxError('Dot(.) is not sealed with integers')
+                    raise GCodeObject.GCodeSyntaxError('Dot(.) is not sealed with integers', index)
             except IndexError:
                 if index == 1:
                     continue
                 elif index + 1 == len(list_before):
-                    raise GCodeObject.GCodeSyntaxError('Dot(.) is located in EOF')
-
-        # Check whether minus(-) is valid
-        for index in range(0, len(list_before)):
-            if isinstance(list_before[index - 1], GCodeObject.GCodeParserMinus) and \
-                    isinstance(list_before[index], GCodeObject.GCodeParserInt):
-                list_location_minus_valid.append(index - 1)
+                    raise GCodeObject.GCodeSyntaxError('Dot(.) is located in EOF', index)
 
         # Bind
         for index in range(0, len(list_before)):
@@ -250,12 +254,9 @@ The zero(0)s are binded at bind_float()."""
                 calculated = list_before[index - 1].element + calculated
                 list_result.append(GCodeObject.GCodeParserFloat(float(calculated)))
                 actual_spot_minuscheck = True
-
-                #if index - 2 in list_location_minus_valid:
-                #    calculated = -calculated
-                #list_result.append(GCodeObject.GCodeParserFloat(float(calculated)))
             # Integers - it works with integers
             elif index in list_location_num and \
+                    not index - 1 in list_location_digitafterdot and \
                     not index - 1 in list_location_dot and \
                     not index + 1 in list_location_dot:
                 list_result.append(list_before[index])
@@ -273,7 +274,7 @@ The zero(0)s are binded at bind_float()."""
         for elem in list_result:
             if isinstance(elem, GCodeObject.GCodeParserMinus) or \
                 isinstance(elem, GCodeObject.GCodeParserDot):
-                raise GCodeObject.GCodeSyntaxError('Check minus(-) or Dot(.)')
+                raise GCodeObject.GCodeSyntaxError('Check minus(-) or Dot(.)', elem)
 
         self.list_bind_float = list_result
         return tuple(list_result)
@@ -299,7 +300,8 @@ The zero(0)s are binded at bind_float()."""
                 list_result.append(GCodeObject.GCode( \
                                     GCodeObject.GCodePrefix(tem_prefix.element), tem_number))
             else:
-                raise GCodeObject.GCodeSyntaxError('Check the sequence of prefixes and numbers')
+                raise GCodeObject.GCodeSyntaxError('Check the sequence of prefixes and numbers' \
+                                                                                        , index)
 
         # If odd is True, g-code sequence does not ends with number.
         if odd:
