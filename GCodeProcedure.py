@@ -50,8 +50,7 @@ Supported characters:
         """Lexical parse, form text file to Python tuple.
 
 Notice:
-lexical_parse doesn't collect zero(0)s located after dot(.).
-The zero(0)s are binded at bind_float()."""
+This function is designed without regular expressions."""
         main_loop = True
         idx = int()
         result_list = list()
